@@ -1,6 +1,9 @@
 language: node_js
 sudo: false
 
+node_js:
+  - node
+
 deploy:
   provider: pages
   skip-cleanup: true
@@ -11,5 +14,5 @@ deploy:
 
 
 before_script:
-  - npm install -g gulp
+  - npm install
 script: gulp test
