@@ -1,3 +1,3 @@
 .*
 !/.gitignore
-!/.travis.yaml
+!/.travis.yml
