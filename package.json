@@ -1,0 +1,28 @@
+{
+  "name": "youtube-demo",
+  "version": "1.0.0",
+  "description": "A youtube demo for Affectiva's JavaScript SDK",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AngelAlvie/youtube-demo.git"
+  },
+  "keywords": [
+    "Affectiva",
+    "Affdex",
+    "YouTube"
+  ],
+  "author": "Angel Alvarez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AngelAlvie/youtube-demo/issues"
+  },
+  "homepage": "https://github.com/AngelAlvie/youtube-demo#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-cli": "^2.0.1"
+  }
+}
