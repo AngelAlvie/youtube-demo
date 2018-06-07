@@ -8,3 +8,8 @@ deploy:
   keep-history: true
   on:
     branch: gh-pages
+
+
+before_script:
+  - npm install -g gulp
+script: gulp test
