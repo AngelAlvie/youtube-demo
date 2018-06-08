@@ -10,8 +10,7 @@ cache:
 before_script:
   - npm install
 script: 
-  - cd src
-  - npm test
+  - cd dev && npm test
 
 branches:
   only:
