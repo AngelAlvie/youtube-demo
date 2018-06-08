@@ -19,13 +19,15 @@ gulp.task("build", ["clean"], () => {
    buildGenerator("public/javascripts/*", "../build/javascripts/")();
    buildGenerator("public/javascripts/*", "../build/images/")();
    buildGenerator("public/index.html",    "../build/")();
+
+   return 0;
 });
 
-gulp.task("test", (cb) => {
-    cb();
+gulp.task("test", () =>{
+    return 0;
 });
 
-gulp.task("run", ["test"], (cb) => {
+gulp.task("run", (cb) => {
     exec('node app.js', (err) => {
         if (err) {
             cb(err)
