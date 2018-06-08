@@ -13,6 +13,10 @@ script:
   - cd src
   - npm test
 
+branches:
+  only:
+  - gh-pages
+  - /.*/
 
 deploy:
   provider: pages
