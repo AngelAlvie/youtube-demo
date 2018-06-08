@@ -10,7 +10,7 @@ cache:
 before_script:
   - cd dev && npm install && npm install -g gulp-cli
 script: 
-  - cd dev && gulp test && gulp build
+  - gulp test && gulp build
 
 branches:
   only:
