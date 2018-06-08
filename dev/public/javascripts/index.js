@@ -1,16 +1,3 @@
-$(document).ready(function() {
-    var isChrome = !!window.chrome && !!window.chrome.webstore;
-    var isFirefox = typeof InstallTrigger !== 'undefined';
-    var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
-
-    if (isChrome || isFirefox || isOpera) {
-        JSSDKDemo.init();
-        JSSDKDemo.run();
-    } else {
-        JSSDKDemo.create_alert("incompatible-browser", "It appears that you are using an unsupported browser. Please try this demo on Chrome, Firefox, or Opera.");
-    }
-});
-
 var JSSDKDemo = (function() {
     var detector = null;
     var capture_frames = false;
@@ -602,3 +589,16 @@ var JSSDKDemo = (function() {
         create_alert: create_alert
     };
 })();
+
+$(document).ready(function() {
+    var isChrome = !!window.chrome && !!window.chrome.webstore;
+    var isFirefox = typeof InstallTrigger !== 'undefined';
+    var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+
+    if (isChrome || isFirefox || isOpera) {
+        JSSDKDemo.init();
+        JSSDKDemo.run();
+    } else {
+        JSSDKDemo.create_alert("incompatible-browser", "It appears that you are using an unsupported browser. Please try this demo on Chrome, Firefox, or Opera.");
+    }
+});

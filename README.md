@@ -12,7 +12,14 @@ Click [here](https://affectiva.github.io/youtube-demo) to try the demo.
 
 ## Workflow
 
+This demo is maintained using Travis CI for automated build, test, and deployment. To plainly inspect the files, simply take a look at the following files:
+* index.html
+* index.js
+* stylesheet.css (We are using Bootstrap with slight CSS level modification) 
 
+All other files are needed for building these files, which are composed of the core of the demo. We are using `gulp` to run the build, test, and server configurations.
+
+ 
 
 #### Supported Browsers
 
