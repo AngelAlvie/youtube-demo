@@ -12,10 +12,6 @@ before_script:
 script: 
   - npm run gulp
 
-branches:
-  only:
-  - development
-
 deploy:
   provider: pages
   skip-cleanup: true
@@ -23,4 +19,4 @@ deploy:
   keep-history: true
   local_dir: build
   on:
-    branch: gh-pages
+    branch: development
