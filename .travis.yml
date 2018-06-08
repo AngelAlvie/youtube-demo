@@ -10,12 +10,11 @@ cache:
 before_script:
   - cd dev && npm install
 script: 
-  -npm run gulp
+  - npm run gulp
 
 branches:
   only:
-  - gh-pages
-  - /.*/
+  - development
 
 deploy:
   provider: pages
