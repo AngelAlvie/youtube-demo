@@ -8,9 +8,9 @@ cache:
   - node_modules
   
 before_script:
-  - cd dev && npm install && npm install -g gulp-cli
+  - cd dev && npm install
 script: 
-  - gulp test && gulp build
+  -npm run gulp
 
 branches:
   only:

@@ -6,25 +6,22 @@ gulp.task("clean", (cb) => {
     return del(["../build/**"], {force : true});
 })
 
-const buildGenerator = (src, dest) => {
+const buildGenerator = (source, destination) => {
     return () => {
-      gulp
-      .src(src)
-      .pipe(gulp.dest(dest));
-    }
+        return gulp.src(source).pipe(gulp.dest(destination)); 
+    };
 };
-  
-gulp.task("build", ["clean"], () => {
-   buildGenerator("public/stylesheets/*", "../build/stylesheets/")();
-   buildGenerator("public/javascripts/*", "../build/javascripts/")();
-   buildGenerator("public/javascripts/*", "../build/images/")();
-   buildGenerator("public/index.html",    "../build/")();
 
-   return 0;
-});
 
-gulp.task("test", () =>{
-    return 0;
+
+gulp.task("build-stylesheets", buildGenerator("public/stylesheets/**", "../build/stylesheets/"));
+gulp.task("build-javascripts", buildGenerator("public/javascripts/**", "../build/javascripts/"));
+gulp.task("build-images"     , buildGenerator("public/images/**", "../build/images/"));
+gulp.task("build-html"       , buildGenerator("public/index.html",    "../build/"));
+gulp.task("build", gulp.series('clean', gulp.parallel('build-javascripts', 'build-stylesheets', 'build-images', 'build-html')));
+
+gulp.task("test", (cb) =>{
+    cb();
 });
 
 gulp.task("run", (cb) => {
@@ -37,7 +34,5 @@ gulp.task("run", (cb) => {
     });
 });
 
-gulp.task("default", ["build", "test"] ,() => {
-    return 0;
-});
+gulp.task("default", gulp.series( "test", "build"));
 

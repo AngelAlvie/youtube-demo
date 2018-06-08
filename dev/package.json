@@ -4,9 +4,10 @@
   "description": "A youtube demo for Affectiva's JavaScript SDK",
   "main": "index.js",
   "scripts": {
-    "test": "gulp test",
-    "build": "gulp build",
-    "start": "gulp run"
+    "test": "npm run gulp test",
+    "build": "npm run gulp build",
+    "start": "npm run gulp run",
+    "gulp": "./node_modules/gulp/bin/gulp.js"
   },
   "repository": {
     "type": "git",
@@ -25,7 +26,7 @@
   "homepage": "https://angelalvie.github.com//youtube-demo#readme",
   "devDependencies": {
     "del": "^3.0.0",
-    "gulp": "^3.9.1"
+    "gulp": "github:gulpjs/gulp#4.0"
   },
   "dependencies": {
     "express": "~4.16.0"

@@ -12,14 +12,18 @@ Click [here](https://affectiva.github.io/youtube-demo) to try the demo.
 
 ## Workflow
 
-This demo is maintained using Travis CI for automated build, test, and deployment. To plainly inspect the files, simply take a look at the following files:
-* index.html
-* index.js
-* stylesheet.css (We are using Bootstrap with slight CSS level modification) 
+This demo is maintained using Travis CI for automated building, testing, and deployment. This demo also uses `gulp.js v4` in order to build. You can look at the example code in the `gh-pages` branch. If you want to look at the development code, switch to the `development` branch. 
 
-All other files are needed for building these files, which are composed of the core of the demo. We are using `gulp` to run the build, test, and server configurations.
+There you will see a `dev` folder. This folder contains the configurations need to run the demo files locally, and build the files to a `build` folder. We are using `node` to host the server from the `dev` folder. `npm` is required to install the development dependencies for this project:
 
- 
+```bash
+$ cd dev
+$ npm install
+$ npm start
+```
+Going to `localhost:8080` in your favorite browser will then load the demo locally. 
+
+If you want to develop on this project, please commit your changes to the `development` branch, then enable Travis CI to run the test and build scripts. Once this is finished, and if the build is successful, then Travis will auto deploy to GiHub Pages, using the `$GITHUB_TOKEN` that is configured in your Travis CI build settings. See the [Travis CI Documentation](https://docs.travis-ci.com/user/deployment/pages/) for more information about this step.
 
 #### Supported Browsers
 
