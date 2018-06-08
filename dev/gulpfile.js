@@ -13,12 +13,15 @@ const buildGenerator = (source, destination) => {
 };
 
 
-
 gulp.task("build-stylesheets", buildGenerator("public/stylesheets/**", "../build/stylesheets/"));
 gulp.task("build-javascripts", buildGenerator("public/javascripts/**", "../build/javascripts/"));
 gulp.task("build-images"     , buildGenerator("public/images/**", "../build/images/"));
 gulp.task("build-html"       , buildGenerator("public/index.html",    "../build/"));
-gulp.task("build", gulp.series('clean', gulp.parallel('build-javascripts', 'build-stylesheets', 'build-images', 'build-html')));
+gulp.task("build-readme"     , buildGenerator("../README.md", "../build/"));
+gulp.task("build-license"    , buildGenerator("../LICENSE", "../build/"));
+gulp.task("build-gitignore"    , buildGenerator("../.gitignore", "../build/"));
+
+gulp.task("build", gulp.series('clean', gulp.parallel('build-javascripts', 'build-stylesheets', 'build-images', 'build-html', 'build-readme', 'build-license', 'build-gitignore')));
 
 gulp.task("test", (cb) =>{
     cb();
