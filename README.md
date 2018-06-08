@@ -16,7 +16,9 @@ This demo is maintained using Travis CI for automated building, testing, and dep
 
 There you will see a `dev` folder. This folder contains the configurations need to run the demo files locally, and build the files to a `build` folder. We are using `node` to host the server from the `dev` folder. `npm` is required to install the development dependencies for this project:
 
+Once you've cloned the repository:
 ```bash
+$ git checkout development
 $ cd dev
 $ npm install
 $ npm start
