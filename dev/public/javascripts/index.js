@@ -38,7 +38,6 @@ var JSSDKDemo = (function () {
 
     if (page.ready_to_accept_input) {
       page.ready_to_accept_input = false;
-      var ;
 
       if (event.data == null) {
         var blob = document.getElementById("start-form").value;
@@ -180,7 +179,13 @@ var JSSDKDemo = (function () {
       // "show all" button
       $("#all").css("border", "3px solid #ffcc66");
 
-      $("#all").click(graph.allClickHandler);
+      // Register click handlers for the graph
+      $("#all"     ).click(graph.allButtonClickHandler);
+      $("#joy"     ).click(graph.EmotionButtonClickHandler("joy"));
+      $("#anger"   ).click(graph.EmotionButtonClickHandler("anger"));
+      $("#disgust" ).click(graph.EmotionButtonClickHandler("disgust"));
+      $("#contempt").click(graph.EmotionButtonClickHandler("contempt"));
+      $("#surprise").click(graph.EmotionButtonClickHandler("surprise"));
 
       // populate sample videos
       populate_examples();
@@ -279,7 +284,7 @@ var JSSDKDemo = (function () {
             detector.stop();
             page.no_internet();
           }
-
+/*
           // make cursor less buggy while video is paused
           if (status === YT.PlayerState.PLAYING) {
             playing = true;
@@ -288,11 +293,10 @@ var JSSDKDemo = (function () {
             playing = false;
             graph.setPlayingState(false);
           }
+          */
         }
       };
     },
-
-    responses: graph.responses,
     run: detector.initializeAndStart,
     create_alert: page.create_alert
   };
