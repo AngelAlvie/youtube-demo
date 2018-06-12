@@ -58,7 +58,7 @@ function Detector(graphObj, pageObj) {
                     page.fade_and_remove("#no-face");
                 }
                 frames_since_last_face = 0;
-                graph.update_plot(faces[0].emotions, fake_timestamp);
+                graph.updatePlot(faces[0].emotions, fake_timestamp);
             } else {
                 frames_since_last_face++;
             }

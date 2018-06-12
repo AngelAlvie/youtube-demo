@@ -11,7 +11,7 @@ function Graph (id){
   var cursor = null;
   var cursor_text = null;
 
-  var emotions = ["joy", "anger", "disgust", "contempt", "surprise"];
+  this.emotions = ["joy", "anger", "disgust", "contempt", "surprise"];
   var colors = ["#FFFFFF", "orangered", "deeppink", "yellow", "green"];
   var selected_emotion_border_properties = "3px solid #ffcc66";
   var selected_emotion = "all";
@@ -19,10 +19,9 @@ function Graph (id){
   var x_scale = d3.scaleLinear().domain([0, 0]).range([0, svg_width]);
   var y_scale = d3.scaleLinear().domain([100, 0]).range([2, 248]);
   var time_scale = null;
-  var cursor_interval = null;
   var processed_frames = [ [], [], [], [], [] ];
   var video_cutoff_sec = 0;
-  var playing = false;
+  var video_duration_sec = 0;
   var path = d3.line()
                .curve(d3.curveBasis)
                .x(function(d, i) {return x_scale(d[0])})
@@ -41,16 +40,6 @@ function Graph (id){
    */
   this.setXScale = function(start_time, video_duration_ms) {
     x_scale = d3.scaleLinear().domain([start_time, start_time + video_duration_ms]).range([0, svg_width]);
-
-    return self;
-  };
-
-  /** Sets the internal representation for the state of the player - TODO: DELETE PLAYER REPRESENTATION, THAT SHOULD BE TRACKED BY THE PLAYER
-   * 
-   * @param {boolean} state  - state of the player
-   */
-  this.setPlayingState = function(state) {
-    playing = state;
 
     return self;
   };
@@ -118,7 +107,7 @@ function Graph (id){
    * @param {float} timestamp - this is the timestamp in the video where we plot the data (effectively the x coordinate)
    */
   this.addDataPoint = function(emotionTable, timestamp) {
-    emotions.forEach(function(val, idx) {
+    this.emotions.forEach(function(val, idx) {
       processed_frames[idx].push([timestamp, emotionTable[val]]);
     });
 
@@ -130,7 +119,7 @@ function Graph (id){
    * @param {string -> float} emotionTable - this is a dictionary that maps each emotion to a floating point number
    * @param {float} timestamp - this is the timestamp in the video where we plot the data (effectively the x coordinate)
    */
-  this.update_plot = function(emotionTable, timestamp) {
+  this.updatePlot = function(emotionTable, timestamp) {
     self
     .addDataPoint(emotionTable, timestamp)
     .getCurves()
@@ -142,7 +131,7 @@ function Graph (id){
   
   /** Instantiate the plot. zero the data, and set attributes of curves.
    */
-  this.init_plot = function() {
+  this.initPlot = function() {
 
     var initial_data = [
       [ [0, 0] ], // joy
@@ -158,7 +147,7 @@ function Graph (id){
     .enter()
     .append("svg:path")
     .attr("class", "curve")
-    .attr("id", function(d, i){return emotions[i]})
+    .attr("id", function(d, i){return this.emotions[i]})
     .attr("d", path)
     .attr("stroke", function(d, i) { return colors[i] } )
     .attr("fill", "transparent")
@@ -170,9 +159,8 @@ function Graph (id){
 
   /** Move the cursor (line) to the relevant x coordinate and render the time location of the cursor
    * @param {number} x_coord - the x_coord to set the cursor to
-   * @param {float} video_duration_sec - the length of the video in seconds
    */
-  this.translate_cursor = function(x_coord, video_duration_sec) {
+  this.translateCursor = function(x_coord) {
     // translate timeline cursor
     cursor.attr("transform", "translate(" + x_coord + ", 0)");
 
@@ -195,120 +183,68 @@ function Graph (id){
     return self;
   };
 
-
-  // TODO: RELOCATE THIS FUNCTION
-  /** Creates a timeout of 50 ms that allows the playback scrubber to track the video.
-   * @param {object} player - must pass a reference back to the player to get current time, and perform necesary state changes
-   * @param {float} video_duration_sec - this is the duration of the video in seconds. 
+  /** returns the time value from the x coordinate.
+   * @param {number} x_coord - x coordinate of the pointer location
+   * @returns {number} - returns a time from the given x coordinates
    */
-  this.track_video = function(player, video_duration_sec) {
-    cursor_interval = setInterval(function() {
-      if (playing) {
-        var x_coord = time_scale(player.getCurrentTime());
-        self.translate_cursor(x_coord, video_duration_sec);
-      }
-    }, 50);
+  this.playbackFromX = function(x_coord) {
+    return time_scale.invert(x_coord);
   };
-
-  /** Handler function that sets the cursor to wherever the mouse is dragging it to.
-   *  @param {object} player - reference to the player object, so that we can seek to it
+   /** returns the x coordinate from the time value.
+   * @param {number} time - returns a time from the given x coordinates
+   * @returns {number} - x coordinate of the pointer location
    */
-  this.dragHandler = function(player, video_duration_sec) {
-    return function() {
-      console.log("dragging");
-      var x_coord = d3.event.x;
-      var playback_time = time_scale.invert(x_coord);
-      if (playback_time < 0) {
-        x_coord = 0;
-        playback_time = 0;
-      } else if (playback_time >= video_cutoff_sec) {
-        playback_time = video_cutoff_sec - 0.001;
-        x_coord = time_scale(playback_time);
-      }
-      self.translate_cursor(x_coord, video_duration_sec);
-      player.seekTo(playback_time);
+  this.playbackToX = function(time) {
+    return time_scale(time);
+  };
+  /** clips the X coordinate to the correct x.
+   * @param {number} x_coord - x coordinate of the pointer location
+   * @returns {number} - returns a new x coordinate in the range of the interval.
+   */
+  this.clipX = function(x_coord) {
+    var playback_time = time_scale.invert(x_coord);
+    if (playback_time < 0) {
+      return 0;
+    } else if (playback_time >= video_cutoff_sec) {
+      return time_scale(playback_time);
+    } else {
+      return x_coord;
     }
   };
 
-  this.dragStartHandler = function(player) {
-    return function() {
-      if (playing) {
-        clearInterval(cursor_interval);
-        // I want to stop the player until we stop dragging TODO: Implement pause and play properly when dragging the cursor
-        //player.pauseVideo();
-      }
-      $("html, .draggable-rect, line.cursor-wide").css({"cursor": "-webkit-grabbing"});
-      $("html, .draggable-rect, line.cursor-wide").css({"cursor": "-moz-grabbing"});
-      $("html, .draggable-rect, line.cursor-wide").css({"cursor": "grabbing"});
-    };
-  };
+  this.setMousePointerDragging = function() {
+    $("html, .draggable-rect, line.cursor-wide").css({"cursor": "-webkit-grabbing"});
+    $("html, .draggable-rect, line.cursor-wide").css({"cursor": "-moz-grabbing"});
+    $("html, .draggable-rect, line.cursor-wide").css({"cursor": "grabbing"});
+    return self;
+  }
 
-  this.dragEndHandler = function(player, video_duration_sec) {
-    return function() {
-      if (playing) {
-        self.track_video(player, video_duration_sec);
-        //player.playVideo();
-      }
-      $("html").css({"cursor": "default"});
-      $(".draggable-rect, line.cursor-wide").css("cursor", "pointer");
-    };
-  };
-
-  this.graphClickHandler = function(player, video_duration_sec) {
-    return function() {
-
-      var x_click = d3.mouse(this)[0];
-      var playback_time = time_scale.invert(x_click);
+  this.setMousePointerUndragging = function() {
+    $("html").css({"cursor": "default"});
+    $(".draggable-rect, line.cursor-wide").css("cursor", "pointer");
+    return self;
+  }
   
-      if (playback_time >= video_cutoff_sec) {
-        playback_time = video_cutoff_sec - 0.001;
-        x_click = time_scale(playback_time);
-      }
-  
-      if (playing) {
-        clearInterval(cursor_interval);
-      }
-      self.translate_cursor(x_click, video_duration_sec);
-      player.seekTo(playback_time);
-  
-      if (playing) {
-        self.track_video(player, video_duration_sec);
-      }
-    }
-  };
-
-
-  /** Performs the necesary state changes to make sure that the graph is ready for playback.
-   * @param {object} player - reference to the player object
+  /** Initializes the cursor and returns it.
+   * @returns {object} - cursor that we can then configure callbacks on.
    */
-  this.add_cursor = function(player, video_duration_sec) {
-    // Since we are dealing with callbacks, lets drop a local reference to our object here
-    
+  this.initializeCursor = function() {
     // Initialize Cursor
     cursor = curveBox.append("svg:g").attr("y1", 0).attr("y2", 250).attr("x1", 0).attr("x2", 10).attr("class", "draggable-group");
     cursor.append("svg:rect").attr("x", -5).attr("y", 0).attr("width", 10).attr("height", 250).attr("class", "draggable-rect");
     cursor.append("svg:line").attr("class", "cursor cursor-wide").attr("y1", 0).attr("y2", 250).attr("x1", 0).attr("x2", 0);
-
-    // Set Drag Handlers
-    cursor
-    .call(d3.drag()
-      .on("drag", self.dragHandler(player, video_duration_sec))
-      .on("start",self.dragStartHandler(player))
-      .on("end",  self.dragEndHandler(player, video_duration_sec))
-    );
-
     // Initialize cursor text box for current time
     cursor_text = curveBox.append("svg:text").attr("class", "time video_current_time").attr("y", 20).attr("x", 5).text("0:00");
 
-    // Handle clicks to a particular moment in time
-    curveBox.on("click", self.graphClickHandler(player, video_duration_sec));
+    return cursor;
   };
 
   /** Should be called from onPlayerStateChange in the player callback closure. This sets the necesary variables to enable the timestep and scale
    * @param {float} video_duration_sec - the duration of the video in seconds. Used to create a linear time scale.
    */
-  this.configureForPlayback = function(video_duration_sec) {
-    video_cutoff_sec = Math.floor(video_duration_sec);
-    time_scale = d3.scaleLinear().domain([0, video_duration_sec]).range([0, svg_width]);
+  this.configureForPlayback = function(video_duration_seconds) {
+    video_duration_sec = video_duration_seconds
+    video_cutoff_sec = Math.floor(video_duration_seconds);
+    time_scale = d3.scaleLinear().domain([0, video_duration_seconds]).range([0, svg_width]);
   };
 }
