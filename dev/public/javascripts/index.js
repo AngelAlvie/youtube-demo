@@ -1,7 +1,7 @@
 $(document).ready(function () {
   var isChrome = !!window.chrome && !!window.chrome.webstore;
-  var isFirefox = typeof InstallTrigger !== 'undefined';
-  var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+  var isFirefox = typeof InstallTrigger !== "undefined";
+  var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(" OPR/") >= 0;
 
   if (isChrome || isFirefox || isOpera) {
     JSSDKDemo.start();
@@ -10,7 +10,7 @@ $(document).ready(function () {
   }
 });
 
-var JSSDKDemo = (function () {
+var JSSDKDemo = new (function () {
   var finished_watching = false;
 
   var player = null;
@@ -32,7 +32,6 @@ var JSSDKDemo = (function () {
   var page = new Page();
   var graph = new Graph("#svg-curve");
   var detector = new Detector(graph, page);
-
   var video_ids = ["EglYdO0k5nQ", "z63KGZE4rnM", "IV_ef2mm4G0", "dlNO2trC-mk", "lhzwmYRXPp4", "0kfLd52jF3Y"];
 
   var begin_capture = function () {
@@ -58,6 +57,7 @@ var JSSDKDemo = (function () {
   var stop_capture = function () {
     detector.setCaptureState(false);
     detector.stop();
+    
     $(".alert").hide();
 
     // focus on message
@@ -71,6 +71,32 @@ var JSSDKDemo = (function () {
         $("#lightbox").one("click", transition_to_playback);
       });
     });
+  };
+  
+  var transition_to_playback = function () {
+    $("#lightbox").fadeOut(500);
+    $("#btn-play-again").fadeOut(500, function () {
+      $(this).replaceWith(function () {
+        return $("<button id='btn-play-again' class='btn btn-primary'>Try again</button>").fadeIn(500, function () {
+          setSpaceBarPlayBehvaior();
+          $("#btn-play-again").one("click", function () { // TODO: Change Behavior of the reload function, so we transition back to the other screen, with out having to reload the detector
+            window.location.reload(false);
+          });
+        });
+      });
+    });
+  };
+
+  var setSpaceBarPlayBehvaior = function () {
+    document.onkeypress = function (event) {
+      if ((event || window.event).charCode == 32) {
+        if (playing) {
+          player.pauseVideo();
+        } else {
+          player.playVideo();
+        }
+      }
+    };
   };
 
   var dragHandler = function() {
@@ -125,7 +151,7 @@ var JSSDKDemo = (function () {
     }, 50);
   };
 
-  var duringVideoHandler = function() {
+  var duringVideoHandler = function(status) {
     if (status === YT.PlayerState.PLAYING) {
       video_duration_sec = player.getDuration();
       if (video_duration_sec > 0) {
@@ -167,15 +193,15 @@ var JSSDKDemo = (function () {
     track_video();
     // Set Drag Handlers
     cursor
-    .call(d3.drag()
-      .on("drag", dragHandler)
-      .on("start",dragStartHandler)
-      .on("end",  dragEndHandler)
-    );
+      .call(d3.drag()
+        .on("drag", dragHandler)
+        .on("start",dragStartHandler)
+        .on("end",  dragEndHandler)
+      );
     // Handle clicks to a particular moment in time
     graph
-    .getCurveBox()
-    .on("click", graphClickHandler);
+      .getCurveBox()
+      .on("click", graphClickHandler);
   };
 
   var initializeYouTubePlayer = function () {
@@ -198,14 +224,14 @@ var JSSDKDemo = (function () {
       return;
     }
     function onPlayerError(event) {
-        page.show_message("msg-bad-url");
-        player.stopVideo();
-        page.ready_to_accept_input = true;
+      page.show_message("msg-bad-url");
+      player.stopVideo();
+      page.ready_to_accept_input = true;
     }
     function onPlayerStateChange(event) {
       var status = event.data;
       if (!finished_watching) {
-        duringVideoHandler();
+        duringVideoHandler(status);
       }
       if (status === YT.PlayerState.ENDED) {
         if (!finished_watching) {
@@ -230,18 +256,23 @@ var JSSDKDemo = (function () {
       }
       
     }
+
+    // Now that the player is available, we will want to reference it
+    page
+      .referencePlayer(player)
+      .populate_examples(video_ids);
   };
 
   // Once you call this function, the demo should start up in one go.
   this.start = function () {
-    page
-    .init()
-    .populate_examples(video_ids);
+    page.init();
+
+    $("#btn-play-again").one("click", transition_to_playback);
 
     // Register click handlers for each emotion button
     $("#all").click(graph.allButtonClickHandler);
 
-    graph.emotions.forEach((val, idx) => {
+    graph.emotions.forEach((val) => {
       $("#"+val).click(graph.EmotionButtonClickHandler(val));
     });
 

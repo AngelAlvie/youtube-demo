@@ -3,15 +3,14 @@
  * @param {string} id - id of the svg curve div object in the DOM 
  * @returns {object} - object that represents the graph controller.
  */
-function Graph (id){
-  // preserve the internal reference to this object, and get around javascript's wonky `this` behavior 
+function Graph (id) {
+  // preserve the internal reference to this object, and get around javascript's wonky `this` behavior.
   var self = this;
 
+  // private members
   var curveBox = d3.select(id);
   var cursor = null;
   var cursor_text = null;
-
-  this.emotions = ["joy", "anger", "disgust", "contempt", "surprise"];
   var colors = ["#FFFFFF", "orangered", "deeppink", "yellow", "green"];
   var selected_emotion_border_properties = "3px solid #ffcc66";
   var selected_emotion = "all";
@@ -23,9 +22,15 @@ function Graph (id){
   var video_cutoff_sec = 0;
   var video_duration_sec = 0;
   var path = d3.line()
-               .curve(d3.curveBasis)
-               .x(function(d, i) {return x_scale(d[0])})
-               .y(function(d, i) {return y_scale(d[1])});
+    .curve(d3.curveBasis)
+    .x(function(d, i) {return x_scale(d[0]);})
+    .y(function(d, i) {return y_scale(d[1]);});
+
+  // public members
+  this.emotions = ["joy", "anger", "disgust", "contempt", "surprise"];
+  
+  //private methods
+
   /** Creates a string that represents the current time of the video.
    * @param {float} time_sec - time in seconds
    * @returns {string} - string formated in correct time.
@@ -33,6 +38,8 @@ function Graph (id){
   var text_time = function(time_sec) {
     return Math.floor(time_sec / 60) + ":" + ((time_sec % 60 < 10) ? ("0" + time_sec % 60) : time_sec % 60);
   };
+
+  //public methods
 
   /** Sets the X Scale of the graph.
    * @param {*} start_time - time at which the video starts
@@ -50,14 +57,15 @@ function Graph (id){
   this.getCurveBox = function() {
     return curveBox;
   };
+
   /** Getter function for the various curves contained in the curve box
    * @returns {object} - returns a d3 selection
    */
   this.getCurves = function() {
     return curveBox.selectAll("path.curve");
   };
+
   /** This function takes an emotion, and transitions the currently selected emotion accordingly.
-   * 
    * @param {string} emotion - name that is associated with the particular emotion that we are interested in.
    */
   this.resetSelectedEmotionButton = function(emotion) {
@@ -75,12 +83,13 @@ function Graph (id){
    */
   this.allButtonClickHandler = function() {
     self
-    .resetSelectedEmotionButton("all")
-    .getCurves()
-    .transition()
-    .duration(400)
-    .attr("stroke-opacity", 1.0);
+      .resetSelectedEmotionButton("all")
+      .getCurves()
+      .transition()
+      .duration(400)
+      .attr("stroke-opacity", 1.0);
   };
+
   /** Button Handler Generator for the rest of the emotions
    *  Just call `$(button).click(graph.EmotionButtonClickHandler(emotion));` to use
    * @param {string} emotion - name of the emotion that we want to highlight.
@@ -88,43 +97,42 @@ function Graph (id){
   this.EmotionButtonClickHandler = function(emotion) {
     return function() {
       self
-      .resetSelectedEmotionButton(emotion)
-      .getCurves()
-      .transition()
-      .duration(400)
-      .attr("stroke-opacity", function(d,i) {
-        if (this.id === emotion) {
-          return 1.0;
-        } else {
-          return 0.2;
-        }
-      });
-    }
+        .resetSelectedEmotionButton(emotion)
+        .getCurves()
+        .transition()
+        .duration(400)
+        .attr("stroke-opacity", function(d,i) {
+          if (this.id === emotion) {
+            return 1.0;
+          } else {
+            return 0.2;
+          }
+        });
+    };
   };
 
   /** Adds a singular datum to the graph.
-   * @param {string -> float} emotionTable - this is a dictionary that maps each emotion to a floating point number
+   * @param {string:float} emotionTable - this is a dictionary that maps each emotion to a floating point number
    * @param {float} timestamp - this is the timestamp in the video where we plot the data (effectively the x coordinate)
    */
   this.addDataPoint = function(emotionTable, timestamp) {
     this.emotions.forEach(function(val, idx) {
       processed_frames[idx].push([timestamp, emotionTable[val]]);
     });
-
     return self;
   };
 
 
   /** updates the plot to have up to date information
-   * @param {string -> float} emotionTable - this is a dictionary that maps each emotion to a floating point number
+   * @param {string:float} emotionTable - this is a dictionary that maps each emotion to a floating point number
    * @param {float} timestamp - this is the timestamp in the video where we plot the data (effectively the x coordinate)
    */
   this.updatePlot = function(emotionTable, timestamp) {
     self
-    .addDataPoint(emotionTable, timestamp)
-    .getCurves()
-    .data(processed_frames)   // curves are assigned in index order, this is how d3 works.
-    .attr("d", path);
+      .addDataPoint(emotionTable, timestamp)
+      .getCurves()
+      .data(processed_frames)   // curves are assigned in index order, this is how d3 works.
+      .attr("d", path);
 
     return self;
   };
@@ -142,17 +150,17 @@ function Graph (id){
     ];
 
     self
-    .getCurves()
-    .data(initial_data)
-    .enter()
-    .append("svg:path")
-    .attr("class", "curve")
-    .attr("id", function(d, i){return this.emotions[i]})
-    .attr("d", path)
-    .attr("stroke", function(d, i) { return colors[i] } )
-    .attr("fill", "transparent")
-    .attr("stroke-width","2px")
-    .attr("stroke-opacity", "1");
+      .getCurves()
+      .data(initial_data)
+      .enter()
+      .append("svg:path")
+      .attr("class", "curve")
+      .attr("id", function(d, i){return self.emotions[i];})
+      .attr("d", path)
+      .attr("stroke", function(d, i) {return colors[i];})
+      .attr("fill", "transparent")
+      .attr("stroke-width","2px")
+      .attr("stroke-opacity", "1");
 
     return self;
   };
@@ -190,13 +198,15 @@ function Graph (id){
   this.playbackFromX = function(x_coord) {
     return time_scale.invert(x_coord);
   };
-   /** returns the x coordinate from the time value.
+
+  /** returns the x coordinate from the time value.
    * @param {number} time - returns a time from the given x coordinates
    * @returns {number} - x coordinate of the pointer location
    */
   this.playbackToX = function(time) {
     return time_scale(time);
   };
+
   /** clips the X coordinate to the correct x.
    * @param {number} x_coord - x coordinate of the pointer location
    * @returns {number} - returns a new x coordinate in the range of the interval.
@@ -212,18 +222,21 @@ function Graph (id){
     }
   };
 
+  /** Sets the mouse pointer to a dragging state
+   */
   this.setMousePointerDragging = function() {
     $("html, .draggable-rect, line.cursor-wide").css({"cursor": "-webkit-grabbing"});
     $("html, .draggable-rect, line.cursor-wide").css({"cursor": "-moz-grabbing"});
     $("html, .draggable-rect, line.cursor-wide").css({"cursor": "grabbing"});
     return self;
-  }
-
+  };
+  /** Sets the mouse pointer to it's original state
+   */
   this.setMousePointerUndragging = function() {
     $("html").css({"cursor": "default"});
     $(".draggable-rect, line.cursor-wide").css("cursor", "pointer");
     return self;
-  }
+  };
   
   /** Initializes the cursor and returns it.
    * @returns {object} - cursor that we can then configure callbacks on.
@@ -243,7 +256,7 @@ function Graph (id){
    * @param {float} video_duration_sec - the duration of the video in seconds. Used to create a linear time scale.
    */
   this.configureForPlayback = function(video_duration_seconds) {
-    video_duration_sec = video_duration_seconds
+    video_duration_sec = video_duration_seconds;
     video_cutoff_sec = Math.floor(video_duration_seconds);
     time_scale = d3.scaleLinear().domain([0, video_duration_seconds]).range([0, svg_width]);
   };
