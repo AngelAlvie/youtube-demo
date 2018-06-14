@@ -35,7 +35,7 @@ function Graph (id) {
    * @param {float} time_sec - time in seconds
    * @returns {string} - string formated in correct time.
    */
-  var text_time = function(time_sec) {
+  var textTime = function(time_sec) {
     return Math.floor(time_sec / 60) + ":" + ((time_sec % 60 < 10) ? ("0" + time_sec % 60) : time_sec % 60);
   };
 
@@ -79,8 +79,7 @@ function Graph (id) {
     return self;
   };
 
-  /** Button Handler for the `all` button.
-   */
+  /** Button Handler for the `all` button. */
   this.allButtonClickHandler = function() {
     self
       .resetSelectedEmotionButton("all")
@@ -137,8 +136,7 @@ function Graph (id) {
     return self;
   };
   
-  /** Instantiate the plot. zero the data, and set attributes of curves.
-   */
+  /** Instantiate the plot. zero the data, and set attributes of curves. */
   this.initPlot = function() {
 
     var initial_data = [
@@ -174,7 +172,7 @@ function Graph (id) {
 
     // render time
     var time_sec = Math.floor(x_coord / svg_width * video_duration_sec);
-    var text = text_time(time_sec);
+    var text = textTime(time_sec);
     cursor_text.text(text);
 
     // figure out if flip is necessary
@@ -222,16 +220,14 @@ function Graph (id) {
     }
   };
 
-  /** Sets the mouse pointer to a dragging state
-   */
+  /** Sets the mouse pointer to a dragging state */
   this.setMousePointerDragging = function() {
     $("html, .draggable-rect, line.cursor-wide").css({"cursor": "-webkit-grabbing"});
     $("html, .draggable-rect, line.cursor-wide").css({"cursor": "-moz-grabbing"});
     $("html, .draggable-rect, line.cursor-wide").css({"cursor": "grabbing"});
     return self;
   };
-  /** Sets the mouse pointer to it's original state
-   */
+  /** Sets the mouse pointer to it's original state */
   this.setMousePointerUndragging = function() {
     $("html").css({"cursor": "default"});
     $(".draggable-rect, line.cursor-wide").css("cursor", "pointer");

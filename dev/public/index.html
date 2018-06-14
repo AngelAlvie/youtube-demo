@@ -16,7 +16,6 @@
     <!-- Affectiva SDK -->
     <script defer src="https://download.affectiva.com/js/3.2/affdex.js"></script>
     <!-- demo files -->
-    <script defer src="javascripts/page.js"></script>
     <script defer src="javascripts/graph.js"></script>
     <script defer src="javascripts/detector.js"></script>
     <script defer src="javascripts/index.js"></script>
@@ -46,6 +45,9 @@
         </div>
         <div class="col-md-6 col-md-offset-3 demo-message" id="msg-bad-url">
             <div class="alert alert-warning" role="alert"><strong>Error: </strong>Please enter a valid YouTube URL or search phrase.</div>
+        </div>
+        <div class="col-md-6 col-md-offset-3 demo-message" id="msg-affdex-failure">
+            <div class="alert alert-danger" role="alert"><strong>Error: </strong>Unable to load the emotion detector. Please reload this page.</div>
         </div>
         <div class="col-md-6 col-md-offset-3 demo-message" id="msg-short-video">
             <div class="alert alert-warning" role="alert"><strong>Error: </strong>That YouTube video is too short.</div>
