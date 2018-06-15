@@ -27,6 +27,36 @@ Going to `localhost:8080` in your favorite browser will then load the demo local
 
 If you want to develop on this project, please commit your changes to the `development` branch, then enable Travis CI to run the test and build scripts. Once this is finished, and if the build is successful, then Travis will auto deploy to GiHub Pages, using the `$GITHUB_TOKEN` that is configured in your Travis CI build settings. See the [Travis CI Documentation](https://docs.travis-ci.com/user/deployment/pages/) for more information about this step.
 
+## Components
+
+This demo is broken down into four components under `public/javascripts/`.
+
+### detector.js
+
+This component interfaces with the Affdex camera detector. Most of its methods return itself, so that you can chain functions like so:
+```JavaScript
+let detector = new Detector();
+
+detector
+  .start()
+  .addEventListener("onWebcamConnectSuccess", () => { /* ... */ })
+  .addEventListener("onWebcamConnectFailure", () => { /* ... */ })
+  .addEventListener("onInitializeSuccess", () => { /* ... */ })
+  .addEventListener("onInitializeFailure", () => { /* ... */ })
+  .addEventListener("onImageResultsSuccess", () => { /* ... */ })
+  .addEventListener("onImageResultsFailure", () => { /* ... */ });
+
+```
+
+### graph.js
+
+This component supports simple interfacing with the graph.
+
+### player.js
+
+### index.js
+
+
 #### Supported Browsers
 
 * Chrome 51 or higher

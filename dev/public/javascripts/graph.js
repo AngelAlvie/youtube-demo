@@ -252,7 +252,6 @@ function Graph (id) {
    * @param {float} video_duration_sec - the duration of the video in seconds. Used to create a linear time scale.
    */
   this.configureForPlayback = function(video_duration_seconds) {
-    console.log(video_duration_seconds);
     video_duration_sec = video_duration_seconds;
     video_cutoff_sec = Math.floor(video_duration_seconds);
     time_scale = d3.scaleLinear().domain([0, video_duration_seconds]).range([0, svg_width]);

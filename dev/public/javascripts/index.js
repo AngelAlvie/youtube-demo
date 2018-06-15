@@ -46,7 +46,7 @@ function Demo() {
   // This should really not be in the client, but oh well.
   var API_KEY = "AIzaSyBw81iUUXQpYRuxSVmMc2jNkjv1tJwqHjc";
   
-  var player = new AsyncPlayer();
+  var player = AsyncPlayer();
   var graph = new Graph("#svg-curve");
   var detector = new Detector(graph);
   var video_ids = ["EglYdO0k5nQ", "z63KGZE4rnM", "IV_ef2mm4G0", "dlNO2trC-mk", "lhzwmYRXPp4", "0kfLd52jF3Y"];  /* This is a 3 second clip to test the short url thing "JZYJDCbFKoc"*/
@@ -76,37 +76,15 @@ function Demo() {
 
   /** Promise factory to load the YT Player and bind the relevant callbacks. */
   var loadYTPlayer = () => {
-    // load IFrame Player API code asynchronously
-    return new Promise(function (resolve, reject) {
-      var tag = document.createElement("script");
-      tag.src = "https://www.youtube.com/iframe_api";
-      var firstScriptTag = document.getElementsByTagName("script")[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-      // I want to defer the resolution of this promise to the initialize callback of the youtube player
-      window.onYouTubeIframeAPIReady = player.initializeYouTubePlayer(showMessage, 
-        graph.configureForPlayback, 
-        detector.addBufferingTime, 
-        videoEnded, 
-        videoDisconnected)(resolve, reject); 
+    return new Promise((resolve, reject) => {
+      player("load", null, (message, data) => {
+        if (message === "loaded") {
+          resolve();
+        } else {
+          reject(message);
+        }
+      });
     });
-  };
-
-  var videoEnded = function() {
-    // We check if we were in playback mode or not. If we were, then don't spam new cursors, else, we want to transition
-    if (state === self.States.PLAYBACK) {
-      graph.translateCursor(0, player.video_duration_sec);
-    } else {
-      transitionToPlayback();
-    }
-    player.seekTo(0);
-    player.pauseVideo();
-  };
-
-  var videoDisconnected = function() {
-    player.stopVideo();
-    detector.stop();
-    noInternet();
   };
 
   /** Promise factory to load the Detector and bid the relevant callbacks. */
@@ -315,31 +293,44 @@ function Demo() {
 
 
     // start the detector ("The detector only starts graphing when we are in the RECORDING phase")
-    player
-      .loadVideoById(video_id, 0)
-      .then(() => {
-        // initialize the graph
+    player("play", video_id, (message, data) => {
+      if (message === "video start") {
         loadGraphButtons();
         state = self.States.RECORDING;
-        showGraph();
-      })
-      .catch(() => {
-
-      });
-
+        showGraph(data.start_time, data.video_duration_ms);
+        graph.configureForPlayback(data.video_duration_sec);
+      } else if (message ==="short video") {
+        showMessage("msg-short-video");
+      } else if (message ==="buffer finished") {
+        detector.addBufferingTime(data);
+      } else if (message ==="ended") {
+        if (state === self.States.PLAYBACK) {
+          graph.translateCursor(0, player("getVideoDurationSec"));
+        } else {
+          transitionToPlayback();
+        }
+        player("seek",0);
+        player("pause");
+      } else if (message ==="network fail") {
+        detector.stop();
+        noInternet();
+      } else if (message ==="error") {
+        showMessage("msg-player-failure");
+      }
+    });
   };
 
   /** Show the graph that was loaded earlier */
-  var showGraph = function () {
+  var showGraph = function (start_time, video_duration_ms) {
     // take care of gap at beginning
-    graph.setXScale(player.start_time, player.video_duration_ms);
+    graph.setXScale(start_time, video_duration_ms);
     graph.updatePlot({
       "joy": 0,
       "anger": 0,
       "disgust": 0,
       "contempt": 0,
       "surprise": 0
-    }, player.start_time);
+    }, start_time);
 
     $("#demo-setup").fadeOut("fast", function () {
       $("#video-container").show();
@@ -413,10 +404,10 @@ function Demo() {
   var setSpaceBarPlayBehvaior = function () {
     document.onkeypress = function (event) {
       if ((event || window.event).charCode == 32) {
-        if (player.playing) {
-          player.pauseVideo();
+        if (player("getPlayingState")) {
+          player("pause");
         } else {
-          player.playVideo();
+          player("resume");
         }
       }
     };
@@ -426,25 +417,25 @@ function Demo() {
     var x_coord = graph.clipX(d3.event.x);
     var playback_time = graph.playbackFromX(x_coord);
     graph.translateCursor(x_coord);
-    player.seekTo(playback_time);
+    player("seek", playback_time);
   };
 
   var dragStartHandler = function() {
-    if (player.playing) {
+    if (player("getPlayingState")) {
       clearInterval(cursor_interval);
       // I want to stop the player until we stop dragging, but keep the state of the player as we drag.
       playing_swap = true;
-      player.pauseVideo();
+      player("pause");
     }
     graph.setMousePointerDragging();
   };
 
   var dragEndHandler = function() {
     if (playing_swap) {
-      player.playVideo(); 
+      player("play"); 
       playing_swap = false; //reset it to false after use
 
-      player.playing = true;
+      player("setPlayingState", true);
       trackVideo();
     }
     graph.setMousePointerUndragging();
@@ -454,21 +445,21 @@ function Demo() {
     var x_click = graph.clipX(d3.mouse(this)[0]);
     var playback_time = graph.playbackFromX(x_click);
 
-    if (player.playing) {
+    if (player("getPlayingState")) {
       clearInterval(cursor_interval);
     }
     graph.translateCursor(x_click);
-    player.seekTo(playback_time);
+    player("seek", playback_time);
 
-    if (player.playing) {
+    if (player("getPlayingState")) {
       trackVideo();
     }
   };
 
   var trackVideo = function() {
     cursor_interval = setInterval(function() {
-      if (player.playing) {
-        var x_coord = graph.playbackToX(player.getCurrentTime());
+      if (player("getPlayingState")) {
+        var x_coord = graph.playbackToX(player("getCurrentTime"));
         graph.translateCursor(x_coord);
       }
     }, 50);
