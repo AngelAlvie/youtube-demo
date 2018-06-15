@@ -6,6 +6,10 @@ function Detector() {
   var detector = null;
   var time_buffering_ms = 0;
 
+  this.frames_since_last_face = 0;
+
+  this.face_visible = true;
+
   this.getCurrentTimeAdjusted = function() {
     return Date.now() - time_buffering_ms;
   };

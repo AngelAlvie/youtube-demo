@@ -21,7 +21,6 @@ const browserCheck = () => {
 $(document).ready(() => {
   JSSDKDemo = new Demo();
   if (browserCheck()) {
-
     JSSDKDemo.start();
   } else {
     JSSDKDemo.createAlert("incompatible-browser", "It appears that you are using an unsupported browser. Please try this demo on Chrome, Firefox, or Opera.");
@@ -29,7 +28,7 @@ $(document).ready(() => {
 });
 
 function Demo() {
-  var self = this; // Use this inside of methods to ensure that we are using the correct object
+  const self = this; // Use this inside of methods to ensure that we are using the correct object
 
   // These are the states that the demo can be in
   this.States = {
@@ -38,31 +37,16 @@ function Demo() {
     RECORDING:"RECORDING",
     PLAYBACK:"PLAYBACK"
   };
-
   var state = self.States.LOADING; // We start the demo in the LOADING STATE.
 
-  var player = null;
-  var VIDEO_HEIGHT = 510;
-  var VIDEO_WIDTH = 853;
-  var VIDEO_VOLUME = 50;
-  var VIDEO_LENGTH_THRESHOLD = 5;
-  var video_duration_sec = 0;
-  var video_duration_ms = 0;
-  var start_time = 0;
-
   var initial_videos = []; // This array stores all of the videos that we want to load into the suggestions
-
-  var playing = false;
   var playing_swap = false; // Used to prevent the video from losing its state when dragging occurs
-
-  var buffer_start_time_ms = 0;
   var cursor_interval = null;
-
-  var frames_since_last_face = 0;
-  var face_visible = true;
 
   // This should really not be in the client, but oh well.
   var API_KEY = "AIzaSyBw81iUUXQpYRuxSVmMc2jNkjv1tJwqHjc";
+  
+  var player = new AsyncPlayer();
   var graph = new Graph("#svg-curve");
   var detector = new Detector(graph);
   var video_ids = ["EglYdO0k5nQ", "z63KGZE4rnM", "IV_ef2mm4G0", "dlNO2trC-mk", "lhzwmYRXPp4", "0kfLd52jF3Y"];  /* This is a 3 second clip to test the short url thing "JZYJDCbFKoc"*/
@@ -100,65 +84,18 @@ function Demo() {
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
       // I want to defer the resolution of this promise to the initialize callback of the youtube player
-      window.onYouTubeIframeAPIReady = initializeYouTubePlayer(resolve, reject); 
+      window.onYouTubeIframeAPIReady = player.initializeYouTubePlayer(showMessage, 
+        graph.configureForPlayback, 
+        detector.addBufferingTime, 
+        videoEnded, 
+        videoDisconnected)(resolve, reject); 
     });
-  };
-
-  /** Once we get the youtube player, we can choose to resolve the load YT Player promise.
-   * @param {Function} resolve - callback to resolve the loadYTPlayer Promise factory 
-   * @param {Function} reject  - callback to reject the loadYTPlayer Promise factory
-   */
-  var initializeYouTubePlayer = (resolve, reject) => {
-    return function() {
-      player = new YT.Player("player", {
-        height: VIDEO_HEIGHT,
-        width: VIDEO_WIDTH,
-        playerVars: {
-          "controls": 0,
-          "iv_load_policy": 3,
-          "rel": 0,
-          "showinfo": 0
-        },
-        events: {
-          "onError": onPlayerError,
-          "onReady": onPlayerReady,
-          "onStateChange": onPlayerStateChange
-        }
-      });
-      resolve();
-    };
-  };
-
-  var onPlayerReady = function (e) {
-    return;
-  };
-
-  var onPlayerError = function(event) {
-    showMessage("msg-bad-url");
-    player.stopVideo();
-  };
-
-  var  onPlayerStateChange = function(event) {
-    var status = event.data;
-    if (status === YT.PlayerState.PLAYING) {
-      duringVideoHandler(status);
-    } else if (status === YT.PlayerState.ENDED) {
-      videoEnded();
-    } else if (status === YT.PlayerState.CUED && video_duration_sec > VIDEO_LENGTH_THRESHOLD && state === self.States.RECORDING) { // loss of Internet while playing video
-      videoDisconnected();
-    }
-    // make cursor less buggy while video is paused
-    if (status === YT.PlayerState.PLAYING) {
-      playing = true;
-    } else {
-      playing = false;
-    }
   };
 
   var videoEnded = function() {
     // We check if we were in playback mode or not. If we were, then don't spam new cursors, else, we want to transition
     if (state === self.States.PLAYBACK) {
-      graph.translateCursor(0, video_duration_sec);
+      graph.translateCursor(0, player.video_duration_sec);
     } else {
       transitionToPlayback();
     }
@@ -170,47 +107,6 @@ function Demo() {
     player.stopVideo();
     detector.stop();
     noInternet();
-  };
-
-  var startPlayingVideo = function() {
-    // just started playing from the beginning
-    start_time = Date.now();
-    player.setVolume(VIDEO_VOLUME);
-    video_duration_ms = video_duration_sec * 1000;
-    graph.configureForPlayback(video_duration_sec);
-  };
-
-  var startPlayingVideoAfterBuffer = function() {
-    // add how much time was spent buffering
-    var buffer_time = Date.now() - buffer_start_time_ms;
-    detector.addBufferingTime(buffer_time);
-  };
-  
-  /** video is valid but needs to buffer */
-  var startBuffering = function() {
-    // log the time when buffering started
-    buffer_start_time_ms = Date.now();
-  };
-
-  var duringVideoHandler = function(status) {
-    if (status === YT.PlayerState.PLAYING) {
-      video_duration_sec = player.getDuration();
-      if (video_duration_sec > 0) {
-        if (video_duration_sec > VIDEO_LENGTH_THRESHOLD) {
-          if (start_time > 0) {
-            startPlayingVideoAfterBuffer();
-          } else {
-            startPlayingVideo();
-          }
-        } else { // video loads and starts playing but is too short
-          showMessage("msg-short-video");
-          player.stopVideo();
-          
-        }
-      }
-    } else if (status === YT.PlayerState.BUFFERING && video_duration_sec > VIDEO_LENGTH_THRESHOLD) {
-      startBuffering();
-    }
   };
 
   /** Promise factory to load the Detector and bid the relevant callbacks. */
@@ -235,19 +131,19 @@ function Demo() {
             // account for time spent buffering
             var fake_timestamp = detector.getCurrentTimeAdjusted();
             
-            if (frames_since_last_face > 100 && face_visible) {
-              face_visible = false;
+            if (detector.frames_since_last_face > 100 && detector.face_visible) {
+              detector.face_visible = false;
               self.createAlert("no-face", "No face was detected. Please re-position your face and/or webcam.");
             }
             if (faces.length > 0) {
-              if (!face_visible) {
-                face_visible = true;
+              if (!detector.face_visible) {
+                detector.face_visible = true;
                 fadeAndRemove("#no-face");
               }
-              frames_since_last_face = 0;
+              detector.frames_since_last_face = 0;
               graph.updatePlot(faces[0].emotions, fake_timestamp);
             } else {
-              frames_since_last_face++;
+              detector.frames_since_last_face++;
             }
           }
         });
@@ -417,28 +313,33 @@ function Demo() {
     // Remove any demo messages we recieved
     $(".demo-message").hide();
 
-    // initialize the graph
-    loadGraphButtons();
-    showGraph();
 
     // start the detector ("The detector only starts graphing when we are in the RECORDING phase")
-    state = self.States.RECORDING;
-    player.loadVideoById(video_id, 0);
-    
-    graph.configureForPlayback(video_duration_sec);
+    player
+      .loadVideoById(video_id, 0)
+      .then(() => {
+        // initialize the graph
+        loadGraphButtons();
+        state = self.States.RECORDING;
+        showGraph();
+      })
+      .catch(() => {
+
+      });
+
   };
 
   /** Show the graph that was loaded earlier */
   var showGraph = function () {
     // take care of gap at beginning
-    graph.setXScale(start_time, video_duration_ms);
+    graph.setXScale(player.start_time, player.video_duration_ms);
     graph.updatePlot({
       "joy": 0,
       "anger": 0,
       "disgust": 0,
       "contempt": 0,
       "surprise": 0
-    }, start_time);
+    }, player.start_time);
 
     $("#demo-setup").fadeOut("fast", function () {
       $("#video-container").show();
@@ -462,7 +363,6 @@ function Demo() {
    *  ============================================================== */
 
   var transitionToPlayback = function () {
-    console.log("transitioned to playback");
     state = self.States.PLAYBACK;
     detector.stop();
 
@@ -513,7 +413,7 @@ function Demo() {
   var setSpaceBarPlayBehvaior = function () {
     document.onkeypress = function (event) {
       if ((event || window.event).charCode == 32) {
-        if (playing) {
+        if (player.playing) {
           player.pauseVideo();
         } else {
           player.playVideo();
@@ -530,7 +430,7 @@ function Demo() {
   };
 
   var dragStartHandler = function() {
-    if (playing) {
+    if (player.playing) {
       clearInterval(cursor_interval);
       // I want to stop the player until we stop dragging, but keep the state of the player as we drag.
       playing_swap = true;
@@ -544,7 +444,7 @@ function Demo() {
       player.playVideo(); 
       playing_swap = false; //reset it to false after use
 
-      playing = true;
+      player.playing = true;
       trackVideo();
     }
     graph.setMousePointerUndragging();
@@ -554,20 +454,20 @@ function Demo() {
     var x_click = graph.clipX(d3.mouse(this)[0]);
     var playback_time = graph.playbackFromX(x_click);
 
-    if (playing) {
+    if (player.playing) {
       clearInterval(cursor_interval);
     }
     graph.translateCursor(x_click);
     player.seekTo(playback_time);
 
-    if (playing) {
+    if (player.playing) {
       trackVideo();
     }
   };
 
   var trackVideo = function() {
     cursor_interval = setInterval(function() {
-      if (playing) {
+      if (player.playing) {
         var x_coord = graph.playbackToX(player.getCurrentTime());
         graph.translateCursor(x_coord);
       }
@@ -577,6 +477,7 @@ function Demo() {
   /** ==============================================================
    *                      UTILITIES AND ALERTS
    *  ============================================================== */
+
   /** Function that just ignores it's input and returns null. Useful for ignore promise failures */
   var ignore = () => {};
   
