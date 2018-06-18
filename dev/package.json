@@ -26,7 +26,8 @@
   "homepage": "https://angelalvie.github.com//youtube-demo#readme",
   "devDependencies": {
     "del": "^3.0.0",
-    "gulp": "github:gulpjs/gulp#4.0"
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-rename": "^1.3.0"
   },
   "dependencies": {
     "express": "~4.16.0"

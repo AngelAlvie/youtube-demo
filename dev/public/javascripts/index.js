@@ -1,20 +1,11 @@
-/** Development log: What is there still left to do:
- * Adjust the curated videos so that it renders the same way as the video **search** results
- * Change the injected html so that the videos don't get distorted with size, also don't add the missing videos
- * Change Behavior of the reload function, so we transition back to the other screen, with out having to reload the detector
- * Figure out why the click handler event is a different syntax from the d3 event syntax (graphClickHandler)?
- * add an alert if you click an invalid video (the button doesn't have a valid ID)
- */
-
 // Initialize Demo
 let JSSDKDemo = null;
 
-/** Check whether or not this demo is running on a browser that supports this demo
- */
+/** Check whether or not the demo is running on a supported browser */
 const browserCheck = () => {
-  let isChrome = !!window.chrome && !!window.chrome.webstore;
-  let isFirefox = typeof InstallTrigger !== "undefined";
-  let isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(" OPR/") >= 0;
+  const isChrome = !!window.chrome && !!window.chrome.webstore;
+  const isFirefox = typeof InstallTrigger !== "undefined";
+  const isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(" OPR/") >= 0;
   return (isChrome || isFirefox || isOpera);
 };
 
@@ -28,37 +19,49 @@ $(document).ready(() => {
 });
 
 function Demo() {
-  const self = this; // Use this inside of methods to ensure that we are using the correct object
+  const self = this; 
+  // Use self inside of methods to ensure that we are referencing the Demo object when calling public members
 
   // These are the states that the demo can be in
   this.States = {
-    LOADING:"LOADING",  // This State is for loading the Affdex Detector and should be indicated by the loading view.
+    LOADING:"LOADING",
     SEARCHING:"SEARCHING",
     RECORDING:"RECORDING",
     PLAYBACK:"PLAYBACK"
   };
-  var state = self.States.LOADING; // We start the demo in the LOADING STATE.
+  let state = self.States.LOADING; // We start the demo in the LOADING STATE.
 
-  var initial_videos = []; // This array stores all of the videos that we want to load into the suggestions
-  var playing_swap = false; // Used to prevent the video from losing its state when dragging occurs
-  var cursor_interval = null;
+  // Internal State variables
 
-  // This should really not be in the client, but oh well.
-  var API_KEY = "AIzaSyBw81iUUXQpYRuxSVmMc2jNkjv1tJwqHjc";
+  // Stores all of the videos that we want to load into the suggestions
+  let initial_videos = []; 
+
+  // Used to prevent the video from losing its state when dragging occurs
+  let playing_swap = false; 
+  // Interval tracking variable.
+  let cursor_interval = null;
+
+  // Internal state for the detector
+  let time_buffering_ms = 0;
+  let frames_since_last_face = 0;
+  let face_visible = true;
+  let detector = null;
+
+  // The YouTube Data API KEY should really not be in the client, but oh well.
+  let API_KEY = "AIzaSyBw81iUUXQpYRuxSVmMc2jNkjv1tJwqHjc";
   
-  var player = AsyncPlayer();
-  var graph = new Graph("#svg-curve");
-  var detector = new Detector(graph);
-  var video_ids = ["EglYdO0k5nQ", "z63KGZE4rnM", "IV_ef2mm4G0", "dlNO2trC-mk", "lhzwmYRXPp4", "0kfLd52jF3Y"];  /* This is a 3 second clip to test the short url thing "JZYJDCbFKoc"*/
+  let player = AsyncPlayer();
+  let graph = new Graph("#svg-curve");
+  let video_ids = ["EglYdO0k5nQ", "z63KGZE4rnM", "IV_ef2mm4G0", "dlNO2trC-mk", "lhzwmYRXPp4", "0kfLd52jF3Y"];
 
   /** ==============================================================
    *                      Pubilc Methods
    *  ============================================================== */
 
-  // This method is to make the state of the Demo read only.
+  /** Make the state of the Demo read only. */
   this.state = () => state;
 
-  // This method will start the Demo, it will begin loading all of the necesary functions.
+  /** Start the Demo, it will begin loading all of the necesary functions. */
   this.start = () => {
     return Promise
       .all([loadYTPlayer(),loadDetector(), loadExamples(video_ids)])
@@ -70,12 +73,27 @@ function Demo() {
       });
   };
 
+  /** Creates an alert that is displayed to the user.
+   * @param {string} id - Id of the html object that we cast the alert to
+   * @param {string} text - text of the alert that we show to the user. */
+  this.createAlert = (id, text) => {
+    $("#lightbox").fadeIn(500);
+    $("<div></div>", {
+      id: id,
+      class: "alert alert-danger",
+      display: "none",
+      text: text,
+    }).appendTo("#lightbox");
+    $("#" + id).css({"text-align": "center", "z-index": 2});
+    $("#" + id).fadeIn(1000);
+  };
+
   /** ==============================================================
-   *   Initialization - methods to run during the LOADING phase
+   *   Load - methods associated with the LOADING phase
    *  ============================================================== */
 
   /** Promise factory to load the YT Player and bind the relevant callbacks. */
-  var loadYTPlayer = () => {
+  const loadYTPlayer = () => {
     return new Promise((resolve, reject) => {
       player("load", null, (message, data) => {
         if (message === "loaded") {
@@ -88,57 +106,61 @@ function Demo() {
   };
 
   /** Promise factory to load the Detector and bid the relevant callbacks. */
-  var loadDetector = () => {
+  const loadDetector = () => {
     return new Promise((resolve, reject) => {
-      detector
-        .start()
-        .addEventListener("onWebcamConnectSuccess", function() {
-          showMessage("msg-starting-webcam");
-        })
-        .addEventListener("onWebcamConnectFailure", function() {
-          reject("msg-webcam-failure");
-        })
-        .addEventListener("onInitializeSuccess", function() {
-          resolve();
-        })
-        .addEventListener("onInitializeFailure", function() {
-          reject("msg-affdex-failure");
-        })
-        .addEventListener("onImageResultsSuccess", function(faces, img, timestamp) {
-          if (state === self.States.RECORDING) {
-            // account for time spent buffering
-            var fake_timestamp = detector.getCurrentTimeAdjusted();
-            
-            if (detector.frames_since_last_face > 100 && detector.face_visible) {
-              detector.face_visible = false;
-              self.createAlert("no-face", "No face was detected. Please re-position your face and/or webcam.");
-            }
-            if (faces.length > 0) {
-              if (!detector.face_visible) {
-                detector.face_visible = true;
-                fadeAndRemove("#no-face");
-              }
-              detector.frames_since_last_face = 0;
-              graph.updatePlot(faces[0].emotions, fake_timestamp);
-            } else {
-              detector.frames_since_last_face++;
-            }
+      let facevideo_node = document.getElementById("facevideo-node");
+      detector = new affdex.CameraDetector(facevideo_node);
+      detector.detectAllEmotions();
+
+      if (detector && !detector.isRunning) {
+        detector.start();
+      }
+      detector.addEventListener("onWebcamConnectSuccess", () => {
+        showMessage("msg-starting-webcam");
+      });
+      detector.addEventListener("onWebcamConnectFailure", () => {
+        reject("msg-webcam-failure");
+      });
+      detector.addEventListener("onInitializeSuccess", () => {
+        resolve();
+      });
+      detector.addEventListener("onInitializeFailure", () => {
+        reject("msg-affdex-failure");
+      });
+      detector.addEventListener("onImageResultsSuccess", (faces, img, timestamp) => {
+        if (state === self.States.RECORDING) {
+          // account for time spent buffering
+          const fake_timestamp = getCurrentTimeAdjusted();
+          
+          if (frames_since_last_face > 100 && face_visible) {
+            face_visible = false;
+            self.createAlert("no-face", "No face was detected. Please re-position your face and/or webcam.");
           }
-        });
-      var face_video = $("#facevideo-node video")[0];
-      face_video.addEventListener("playing", function() {
+          if (faces.length > 0) {
+            if (!face_visible) {
+              face_visible = true;
+              fadeAndRemove("#no-face");
+            }
+            frames_since_last_face = 0;
+            graph.updatePlot(faces[0].emotions, fake_timestamp);
+          } else {
+            frames_since_last_face++;
+          }
+        }
+      });
+      const face_video = $("#facevideo-node video")[0];
+      face_video.addEventListener("playing", () => {
         showMessage("msg-detector-status");
       });
     });
   };
 
-  /** This makes a request to load example video data to the `initial_videos` array.
-   * @param {string[]]} video_ids - list of ids for each of the videos we want to get. 
-   */
-  var loadExamples = (video_ids) => {
+  /** Make a request to load example video data to the `initial_videos` array.
+   * @param {string[]} video_ids - list of ids for each of the videos we want to get. */
+  const loadExamples = (video_ids) => {
     let promises = [];
-    video_ids.forEach(function (value, index) {
-      var url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + value + "&key=" + API_KEY;
+    video_ids.forEach((value) => {
+      const url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + value + "&key=" + API_KEY;
       promises.push(
         httpGetAsync(url)
           .then(addVideoToSuggested(value))
@@ -149,10 +171,10 @@ function Demo() {
     return Promise.all(promises);
   };
 
-  /** Function that takes a video ID, and returns a function that takes a XMLHttpResponse and adds it to our initial videos to load */
-  var addVideoToSuggested = (value) => (results) => {
+  /** Take a video ID, and return a function that takes a XMLHttpResponse and adds it to our initial videos to load. */
+  const addVideoToSuggested = (value) => (results) => {
     if (results.items.length > 0) {
-      var title = results.items[0].snippet.title;
+      const title = results.items[0].snippet.title;
       //each entry in the initial videos array will have a video_id and a title.
       initial_videos.push({
         title:title,
@@ -162,16 +184,15 @@ function Demo() {
   };
 
   /** ==============================================================
-   *   Search - methods to run during the SEARCHING phase
+   *   Search - methods associated with the SEARCHING phase
    *  ============================================================== */
 
-  /** This function transitions the page into the SEARCHING state.
-   */
-  var transitionToSearching = function() {
+  /** Transition the page into the SEARCHING state. */
+  const transitionToSearching = () => {
     // Assign relevant handlers to buttons
     $("#btn-start").click(startButtonClicked);
     // add click functionality to enter button
-    $("#start-form").keyup(function (event) {
+    $("#start-form").keyup((event) => {
       if (event.keyCode === 13 || event.which === 13) {
         $("#btn-start").click();
       }
@@ -179,61 +200,81 @@ function Demo() {
     // Render the instructions
     showMessage("instructions");
     // Render the Youtube Videos
-    populateExamples(video_ids);
-
-    // Display (or not) the Facecam
-    // $('#facevideo-node').hide();
+    populateExamples();
 
     state = self.States.SEARCHING;
-  }; 
+  };
 
-  // Renders an initial box of videos that we want to show the user
-  var populateExamples = function () {
-    initial_videos.forEach(function (video, index) {
-      var id = "#example-" + index;
-      var thumbnail_url = "https://i.ytimg.com/vi/" + video.id + "/mqdefault.jpg";  // This gets the thumbnail
+  /** Set ordering of initial videos to be in the same order as the video ids list. */
+  const sortVideos = () => {
+    // I'm not worried about efficency, since I know  the number of elements is bounded by a really small number (6).
+    let ordering = [];
+    // Use a selection sort.
+    video_ids.forEach((value) => {
+      initial_videos.forEach((video) => {
+        if (video.id === value) {
+          ordering.push(video);
+        }
+      });
+    });
 
-      $(id)[0].style.backgroundImage = "url(" + thumbnail_url + ")";
+    initial_videos = ordering;
+
+  };
+
+  /** Render an initial box of videos that we want to show the user. */
+  const populateExamples = () => {
+    
+    sortVideos();
+
+    initial_videos.forEach((video, index) => {
+      const id = "#example-" + index;
+      const thumbnail_url = "https://i.ytimg.com/vi/" + video.id + "/mqdefault.jpg";
+
+      let JQVideoNode = $(id);
+
+      JQVideoNode[0].style.backgroundImage = "url(" + thumbnail_url + ")";
       // Give it the click handler
-      $(id).click({ id: video.id }, onVideoClick);
+      JQVideoNode.click({ id: video.id }, onVideoClick);
       
-      $(id).hover(function () {
-        this.style.backgroundBlendMode = "overlay";
-        $(this)[0].innerText = video.title;
-      }, function () {
-        this.style.backgroundBlendMode = "initial";
-        $(this)[0].innerText = "";
+      JQVideoNode.hover(() => {
+        JQVideoNode[0].style.backgroundBlendMode = "overlay";
+        JQVideoNode[0].innerText = video.title;
+      }, () => {
+        JQVideoNode[0].style.backgroundBlendMode = "initial";
+        JQVideoNode[0].innerText = "";
       });
 
     });
   };
 
-  // OnVideoClick will initialize the transition to the next state
-  var onVideoClick = function(event) {
+  /** Initialize the transition to the next state. */
+  const onVideoClick = (event) => {
     if (state === self.States.SEARCHING) {
       
-      var video_id = event.data.id;
+      const video_id = event.data.id;
       if (typeof video_id !== "undefined") {
         transitionToRecording(video_id);
       }
     }
   };
 
-  var startButtonClicked = function (_) {
+  /** Perform search after start button clicked. */
+  const startButtonClicked = (_) => {
     $(".demo-message").hide();
-    var video_id;
+    let video_id;
     if (state === self.States.SEARCHING) {
       
-      var blob = document.getElementById("start-form").value;
+      const blob = document.getElementById("start-form").value;
       
       if (blob === "" || blob.includes("http://") || blob.includes("https://")) { // treat as URL
         video_id = blob.split("v=")[1] || "";
-        var ampersandPosition = video_id.indexOf("&");
+        const ampersandPosition = video_id.indexOf("&");
         if (ampersandPosition !== -1) {
           video_id = video_id.substring(0, ampersandPosition);
         }
       } else { // treat as search
-        var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=" + API_KEY + "&maxResults=10&safeSearch=strict&q=" + blob;
+        const url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=" + API_KEY + "&maxResults=10&safeSearch=strict&q=" + blob;
         httpGetAsync(url)
           .then(addToSearchResults)
           .catch(ignore);
@@ -243,16 +284,16 @@ function Demo() {
 
   /** Takes a string of JSON, and adds the results to the view.  
    * @param {string} text - String that represents JSON data */
-  var addToSearchResults = function(results) {
+  const addToSearchResults = (results) => {
     $("#search-results").empty();
-    var list = results.items;
+    const list = results.items;
 
     // add results
-    list.forEach(function(val) {
-      var v = val;
-      var s = v.snippet;
-      var id = v.id.videoId;
-      var result = document.createElement("div");
+    list.forEach((val) => {
+      const v = val;
+      const s = v.snippet;
+      const id = v.id.videoId;
+      let result = document.createElement("div");
       result.className = "list-group-item";
       result.innerHTML = 
       `<table>
@@ -266,9 +307,9 @@ function Demo() {
     });
 
     // show a message for when no videos were found
-    var num_videos = results.pageInfo.totalResults;
+    const num_videos = results.pageInfo.totalResults;
     if (num_videos === 0) {
-      var message = document.createElement("div");
+      let message = document.createElement("div");
       message.className = "list-group-item";
       message.innerHTML = "<p>No results were found.</p>";
       $("#search-results").append(message);
@@ -281,13 +322,12 @@ function Demo() {
   };
 
   /** ==============================================================
-   *   Record - methods to run during the RECORDING phase
+   *   Record - methods associated with the RECORDING phase
    *  ============================================================== */
   
-  /** This function transitions the page into the RECORDING state. 
-   * @param {string} video_id - internal youtube id for the video that we want to transition to playing
-  */
-  var transitionToRecording = function(video_id) {
+  /** Transition the page into the RECORDING state. 
+   * @param {string} video_id - internal youtube id for the video that we want to transition to playing */
+  const transitionToRecording = (video_id) => {
     // Remove any demo messages we recieved
     $(".demo-message").hide();
 
@@ -302,10 +342,10 @@ function Demo() {
       } else if (message ==="short video") {
         showMessage("msg-short-video");
       } else if (message ==="buffer finished") {
-        detector.addBufferingTime(data);
+        time_buffering_ms += data;
       } else if (message ==="ended") {
         if (state === self.States.PLAYBACK) {
-          graph.translateCursor(0, player("getVideoDurationSec"));
+          graph.translateCursor(0);
         } else {
           transitionToPlayback();
         }
@@ -320,8 +360,8 @@ function Demo() {
     });
   };
 
-  /** Show the graph that was loaded earlier */
-  var showGraph = function (start_time, video_duration_ms) {
+  /** Show the graph that was loaded earlier. */
+  const showGraph = (start_time, video_duration_ms) => {
     // take care of gap at beginning
     graph.setXScale(start_time, video_duration_ms);
     graph.updatePlot({
@@ -332,13 +372,14 @@ function Demo() {
       "surprise": 0
     }, start_time);
 
-    $("#demo-setup").fadeOut("fast", function () {
+    $("#demo-setup").fadeOut("fast", () => {
       $("#video-container").show();
       graph.initPlot();
     });
   };
 
-  var loadGraphButtons = function() {
+  /** Load and bind handlers for the various emotion buttons. */
+  const loadGraphButtons = () => {
     // "show all" button
     $("#all").css("border", "3px solid #ffcc66");
     // Register click handlers for each emotion button
@@ -350,29 +391,31 @@ function Demo() {
   };
 
   /** ==============================================================
-   *   Playback - methods to run during the PLAYBACK phase
+   *   Playback - methods associated with the PLAYBACK phase
    *  ============================================================== */
 
-  var transitionToPlayback = function () {
+  /** Transition the page into the PLAYBACK state. */
+  const transitionToPlayback = () => {
     state = self.States.PLAYBACK;
     detector.stop();
 
     $(".alert").hide();
 
     // focus on message
-    $("#lightbox").fadeIn(750, function () {
+    $("#lightbox").fadeIn(750, () => {
       // start playback
       initializePlayback();
       $("#player").css("pointer-events", "");
-      $("#play-again").fadeIn(500, function () {
+      $("#play-again").fadeIn(500, () => {
         $("#lightbox").one("click", allowPlayback);
       });
       $("#btn-play-again").one("click", allowPlayback);
     });
   };
   
-  var initializePlayback = function() {
-    var cursor = graph.initializeCursor();
+  /** Start the playback, by adding a cursor that tracks the video. */
+  const initializePlayback = () => {
+    let cursor = graph.initializeCursor();
     trackVideo();
     // Set Drag Handlers
     cursor
@@ -387,13 +430,17 @@ function Demo() {
       .on("click", graphClickHandler);
   };
 
-  var allowPlayback = function () {
+  /** Handle the `try again`, and `got it` button transition. */
+  const allowPlayback = () => {
     $("#lightbox").fadeOut(500);
-    $("#btn-play-again").fadeOut(500, function () {
-      $(this).replaceWith(function () {
-        return $("<button id='btn-play-again' class='btn btn-primary'>Try again</button>").fadeIn(500, function () {
+
+    let play_again_button = $("#btn-play-again");
+
+    play_again_button.fadeOut(500,() => {
+      play_again_button.replaceWith(() => {
+        return $("<button id='btn-play-again' class='btn btn-primary'>Try again</button>").fadeIn(500, () => {
           setSpaceBarPlayBehvaior();
-          $("#btn-play-again").one("click", function () { 
+          $("#btn-play-again").one("click", () => { 
             window.location.reload(false);
           });
         });
@@ -401,8 +448,9 @@ function Demo() {
     });
   };
 
-  var setSpaceBarPlayBehvaior = function () {
-    document.onkeypress = function (event) {
+  /** Add listeners for the spacebar, so that we can pause and play the video in playback. */
+  const setSpaceBarPlayBehvaior = () => {
+    document.onkeypress = (event) => {
       if ((event || window.event).charCode == 32) {
         if (player("getPlayingState")) {
           player("pause");
@@ -413,14 +461,16 @@ function Demo() {
     };
   };
 
-  var dragHandler = function() {
-    var x_coord = graph.clipX(d3.event.x);
-    var playback_time = graph.playbackFromX(x_coord);
+  /** Handler for `drag` event. */
+  const dragHandler = () => {
+    const x_coord = graph.clipX(d3.event.x);
+    const playback_time = graph.playbackFromX(x_coord);
     graph.translateCursor(x_coord);
     player("seek", playback_time);
   };
 
-  var dragStartHandler = function() {
+  /** Handler for `dragstart` event. */
+  const dragStartHandler = () => {
     if (player("getPlayingState")) {
       clearInterval(cursor_interval);
       // I want to stop the player until we stop dragging, but keep the state of the player as we drag.
@@ -430,9 +480,10 @@ function Demo() {
     graph.setMousePointerDragging();
   };
 
-  var dragEndHandler = function() {
+  /** Handler for `dragend` event. */
+  const dragEndHandler = () => {
     if (playing_swap) {
-      player("play"); 
+      player("resume"); 
       playing_swap = false; //reset it to false after use
 
       player("setPlayingState", true);
@@ -441,9 +492,10 @@ function Demo() {
     graph.setMousePointerUndragging();
   };
 
-  var graphClickHandler = function() {
-    var x_click = graph.clipX(d3.mouse(this)[0]);
-    var playback_time = graph.playbackFromX(x_click);
+  /** Handler for `click` event on graph. */
+  const graphClickHandler = function() {
+    const x_click = graph.clipX(d3.mouse(this)[0]); 
+    const playback_time = graph.playbackFromX(x_click);
 
     if (player("getPlayingState")) {
       clearInterval(cursor_interval);
@@ -456,10 +508,11 @@ function Demo() {
     }
   };
 
-  var trackVideo = function() {
-    cursor_interval = setInterval(function() {
+  /** Sets an interval for the graph cursor, such that it tracks the video's playing. */
+  const trackVideo = () => {
+    cursor_interval = setInterval(() => {
       if (player("getPlayingState")) {
-        var x_coord = graph.playbackToX(player("getCurrentTime"));
+        const x_coord = graph.playbackToX(player("getCurrentTime"));
         graph.translateCursor(x_coord);
       }
     }, 50);
@@ -469,60 +522,47 @@ function Demo() {
    *                      UTILITIES AND ALERTS
    *  ============================================================== */
 
-  /** Function that just ignores it's input and returns null. Useful for ignore promise failures */
-  var ignore = () => {};
+  /** Ignores it's input and returns null. Useful for ignore promise failures */
+  const ignore = () => {};
   
   /** Creates a promise that resolves a GET request when the server returns a response status of 200, fails otherwise.
-   * @param {string} urlString - URL of the GET request.
-   */  
-  var httpGetAsync = function (urlString) {
+   * @param {string} urlString - URL of the GET request. */  
+  const httpGetAsync = (urlString) => {
     return new Promise((resolve, reject) => {
       $.ajax({
         url:urlString,
         method:"GET",
-        success:function( data, textStatus, jqXHR ) {resolve(data); },
-        failure:function( jqXHR, textStatus, errorThrown) {reject(errorThrown); }
+        success: ( data, textStatus, jqXHR ) => { resolve(data); },
+        failure: ( jqXHR, textStatus, errorThrown) =>{ reject(errorThrown); }
       });
     });
   };
 
-  /** This is a function that creates an alert that is displayed to the user.
-   * @param {string} id - Id of the html object that we cast the alert to
-   * @param {string} text - text of the alert that we show to the user.
-   */
-  this.createAlert = function(id, text) {
-    $("#lightbox").fadeIn(500);
-    $("<div></div>", {
-      id: id,
-      class: "alert alert-danger",
-      display: "none",
-      text: text,
-    }).appendTo("#lightbox");
-    $("#" + id).css({"text-align": "center", "z-index": 2});
-    $("#" + id).fadeIn(1000);
-  };
-
   /** Show a demo-message with the proper id
-   * @param {string} id - id of element to show on screen.
-   */
-  var showMessage = function(id) {
+   * @param {string} id - id of element to show on screen. */
+  const showMessage = (id) => {
     $(".demo-message").hide();
     $(document.getElementById(id)).fadeIn("fast");
   };
 
+  /** Returns the Adjusted time of the video. */
+  const getCurrentTimeAdjusted = () => {
+    return Date.now() - time_buffering_ms;
+  };
+
   /** Remove alerts created by the `createAlert` function. 
-   * @param {string} id - id of element to remove from the view.
-   */
-  var fadeAndRemove = function(id) {
-    $(id).fadeOut(500, function() {
-      this.remove();
+   * @param {string} id - id of element to remove from the view. */
+  const fadeAndRemove = (id) => {
+    let removeObj = $(id);
+
+    removeObj.fadeOut(500, () => {
+      removeObj.remove();
     });
     $("#lightbox").fadeOut(1000);
   };
 
-  /** Create an alert that tells the user that there is no internet connection.
-   */
-  var noInternet = function() {
+  /** Create an alert that tells the user that there is no internet connection. */
+  const noInternet = () => {
     $(".alert").hide();
     self.createAlert("terminated", "It appears that you aren't connected to the Internet anymore. Please refresh the page and try again.");
   };
