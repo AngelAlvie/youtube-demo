@@ -12,10 +12,12 @@
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous"></script>
-    <script defer src="https://d3js.org/d3.v3.min.js"></script>
+    <script defer src="https://d3js.org/d3.v5.min.js"></script>
     <!-- Affectiva SDK -->
     <script defer src="https://download.affectiva.com/js/3.2/affdex.js"></script>
     <!-- demo files -->
+    <script defer src="javascripts/player.js"></script>
+    <script defer src="javascripts/graph.js"></script>
     <script defer src="javascripts/index.js"></script>
 
     <a href="https://github.com/affectiva/youtube-demo"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/c6286ade715e9bea433b4705870de482a654f78a/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png"></a>
@@ -44,8 +46,14 @@
         <div class="col-md-6 col-md-offset-3 demo-message" id="msg-bad-url">
             <div class="alert alert-warning" role="alert"><strong>Error: </strong>Please enter a valid YouTube URL or search phrase.</div>
         </div>
+        <div class="col-md-6 col-md-offset-3 demo-message" id="msg-affdex-failure">
+            <div class="alert alert-danger" role="alert"><strong>Error: </strong>Unable to load the emotion detector. Please reload this page.</div>
+        </div>
         <div class="col-md-6 col-md-offset-3 demo-message" id="msg-short-video">
             <div class="alert alert-warning" role="alert"><strong>Error: </strong>That YouTube video is too short.</div>
+        </div>
+        <div class="col-md-6 col-md-offset-3 demo-message" id="msg-player-failure">
+            <div class="alert alert-warning" role="alert"><strong>Error: </strong>There was a problem with the youtube player. Please try reloading the page again.</div>
         </div>
         <div class="col-md-8 col-md-offset-2" id="instructions">
             <div class="well">
@@ -93,17 +101,16 @@
                 <div id="ul-wrapper" class="col-md-2">
                     <ul id="nav">
                     <li class="all buttons all-face all-box box-squared" id="all"><span>Show all</span></li>
-                    <li class="joy buttons smiling-face joy-box box-squared" id="joy" onClick="JSSDKDemo.responses(this.id)"><span>Joy</span></li>
-                    <li class="anger buttons angry-face anger-box box-squared" id="anger" onClick="JSSDKDemo.responses(this.id)"><span>Anger</span></li>
-                    <li class="disgust buttons disgusted-face disgust-box box-squared" id="disgust"  onClick="JSSDKDemo.responses(this.id)"><span>Disgust</span></li>
-                    <li class="contempt buttons contempt-face contempt-box box-squared" id="contempt"  onClick="JSSDKDemo.responses(this.id)"><span>Contempt</span></li>
-                    <li class="surprise buttons surprise-face surprise-box box-squared" id="surprise"  onClick="JSSDKDemo.responses(this.id)"><span>Surprise</span></li>
+                    <li class="joy buttons smiling-face joy-box box-squared" id="joy"><span>Joy</span></li>
+                    <li class="anger buttons angry-face anger-box box-squared" id="anger"><span>Anger</span></li>
+                    <li class="disgust buttons disgusted-face disgust-box box-squared" id="disgust"><span>Disgust</span></li>
+                    <li class="contempt buttons contempt-face contempt-box box-squared" id="contempt"><span>Contempt</span></li>
+                    <li class="surprise buttons surprise-face surprise-box box-squared" id="surprise"><span>Surprise</span></li>
                     </ul>
                 </div>
                 <div id="svg-wrapper" class="col-md-8 text-center">
                     <svg id="svg-curve"></svg>
                 </div>
-
                 <div id="play-again" class="col-md-2">
                   <div class="well">
                     <p>Frame capture complete!</p>
