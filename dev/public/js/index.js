@@ -42,6 +42,9 @@ function Demo() {
   // Interval tracking variable.
   let cursor_interval = null;
 
+  // Determines if the buffer should continue
+  let video_resumed = false;
+
   // Internal state for the detector
   let time_buffering_ms = 0;
   let frames_since_last_face = 0;
@@ -111,6 +114,11 @@ function Demo() {
     });
   };
 
+  const showErrorRow = () => {
+    $("#error-row").removeClass("d-none");
+    $("#error-row").removeClass("d-flex");        
+  };
+
   /** Promise factory to load the Detector and bid the relevant callbacks. */
   const loadDetector = () => {
     return new Promise((resolve, reject) => {
@@ -122,16 +130,19 @@ function Demo() {
         detector.start();
       }
       detector.addEventListener("onWebcamConnectSuccess", () => {
+        $("#starting-message").hide();
         showMessage("msg-starting-webcam");
       });
       detector.addEventListener("onWebcamConnectFailure", () => {
+        stopLoading();
+        showErrorRow();
         reject("msg-webcam-failure");
       });
       detector.addEventListener("onInitializeSuccess", () => {
         resolve();
       });
       detector.addEventListener("onImageResultsSuccess", (faces, img, timestamp) => {
-        if (state === self.States.RECORDING) {
+        if (state === self.States.RECORDING && video_resumed) {
           // account for time spent buffering
           const fake_timestamp = getCurrentTimeAdjusted();
           
@@ -155,6 +166,7 @@ function Demo() {
       const face_video = $("#facevideo-node video")[0];
       face_video.addEventListener("playing", () => {
         showMessage("msg-detector-status");
+        $("#facevideo-node").hide();
       });
     });
   };
@@ -201,12 +213,24 @@ function Demo() {
         $("#btn-start").click();
       }
     });
+    stopLoading();
+    startSearch();
+
+    state = self.States.SEARCHING;
+  };
+
+  /** Remove the loading element from the view */
+  const stopLoading = () => {
+    $("#loading-row").addClass("d-none").removeClass("d-flex");
+
+  };
+
+  const startSearch = () => {
+    $("#demo-setup").addClass("d-flex").removeClass("d-none");
     // Render the instructions
     showMessage("instructions");
     // Render the Youtube Videos
     populateExamples();
-
-    state = self.States.SEARCHING;
   };
 
   /** Set ordering of initial videos to be in the same order as the video ids list. */
@@ -229,12 +253,27 @@ function Demo() {
   const populateExamples = () => {
     
     sortVideos();
+    
+    const example_container = $("#example-container");
+
+    // list of lists for how we want to orient the examples, depending on the # of examples we have
+    // We will have breakpoints in the order xs, sm, md, lg, xl
+    const breakpoints = [
+      [12, 6, 6, 4, 4], // < 4
+      [12, 6, 6, 6, 6], // = 4 (We want a special behavior for this sweet spot),
+      [12, 6, 6, 4, 4]  // > 4
+    ]; 
+
+    const bp = (initial_videos.length > 4) ? breakpoints[2] : ((initial_videos.length === 4) ? breakpoints[1] : breakpoints[0]); 
 
     initial_videos.forEach((video, index) => {
-      const id = "#example-" + index;
       const thumbnail_url = "https://i.ytimg.com/vi/" + video.id + "/mqdefault.jpg";
 
-      let JQVideoNode = $(id);
+      let JQVideoColumn = $(`<div class='col-${bp[0]} col-sm-${bp[1]} col-md-${bp[2]} col-lg-${bp[3]} col-xl-${bp[4]}'></div>`);
+      let JQVideoNode =  $("<div class='example card m-1'></div>");
+      
+      JQVideoColumn.appendTo(example_container);
+      JQVideoNode.appendTo(JQVideoColumn);
 
       JQVideoNode[0].style.backgroundImage = "url(" + thumbnail_url + ")";
       // Give it the click handler
@@ -242,10 +281,10 @@ function Demo() {
       
       JQVideoNode.hover(() => {
         JQVideoNode[0].style.backgroundBlendMode = "overlay";
-        JQVideoNode[0].innerText = video.title;
+        JQVideoNode.html("<p class='video-text'>" + video.title + "</p>");
       }, () => {
         JQVideoNode[0].style.backgroundBlendMode = "initial";
-        JQVideoNode[0].innerText = "";
+        JQVideoNode.html("");
       });
 
     });
@@ -263,7 +302,7 @@ function Demo() {
   };
 
   /** Perform search after start button clicked. */
-  const startButtonClicked = (_) => {
+  const startButtonClicked = (cb) => {
     $(".demo-message").hide();
     let video_id;
     if (state === self.States.SEARCHING) {
@@ -281,7 +320,8 @@ function Demo() {
         const url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=" + API_KEY + "&maxResults=10&safeSearch=strict&q=" + blob;
         httpGetAsync(url)
           .then(addToSearchResults)
-          .catch(ignore);
+          .catch(ignore)
+          .then(cb);
       }
     }
   };
@@ -290,6 +330,7 @@ function Demo() {
    * @param {string} text - String that represents JSON data */
   const addToSearchResults = (results) => {
     $("#search-results").empty();
+    $("#search-results").show();
     const list = results.items;
 
     // add results
@@ -299,13 +340,12 @@ function Demo() {
       const id = v.id.videoId;
       let result = document.createElement("div");
       result.className = "list-group-item";
+      result.id = id;
       result.innerHTML = 
-      `<table>
-        <tr>
-          <td><img class="thumbnail" id="${id}" src="${s.thumbnails.medium.url}" style="margin-right:15px"></td>
-          <td valign="top"><h3>${s.title}</h3><span>${s.description}</span></td>
-        </tr>
-      </table>`;    
+      `<div class="row">
+          <div class="col-md-auto"><img class="img-fluid" src="${s.thumbnails.medium.url}" style="margin-right:15px"></div>
+          <div class="col"><h3>${s.title}</h3><p>${s.description}</p></div>
+        </div>`;    
       $("#search-results").append(result);
       $("#"+id).click({id: id}, onVideoClick);
     });
@@ -318,11 +358,6 @@ function Demo() {
       message.innerHTML = "<p>No results were found.</p>";
       $("#search-results").append(message);
     }
-
-    // scroll to results
-    $("html, body").animate({
-      scrollTop: $("#search-results").offset().top - 15
-    });
   };
 
   /** ==============================================================
@@ -341,13 +376,23 @@ function Demo() {
       if (message === "video start") {
         loadGraphButtons();
         state = self.States.RECORDING;
-        showGraph(data.start_time, data.video_duration_ms);
-        graph.configureForPlayback(data.video_duration_sec);
+        showGraph(data.start_time, data.video_duration_ms,data.video_duration_sec);
+        video_resumed = true;
+      
       } else if (message ==="short video") {
         showMessage("msg-short-video");
+      
       } else if (message ==="buffer finished") {
+        // Tell the detector to start recording
+        video_resumed = true;
         time_buffering_ms += data;
+      
+      } else if (message === "buffer started") {
+        // Tell the detector to stop recording
+        video_resumed = false;
+      
       } else if (message ==="ended") {
+        video_resumed = false;
         if (state === self.States.PLAYBACK) {
           graph.translateCursor(0);
         } else {
@@ -355,9 +400,12 @@ function Demo() {
         }
         player("seek",0);
         player("pause");
+      
       } else if (message ==="network fail") {
+        video_resumed = false;
         detector.stop();
         noInternet();
+      
       } else if (message ==="error") {
         showMessage("msg-bad-url");
       }
@@ -365,30 +413,29 @@ function Demo() {
   };
 
   /** Show the graph that was loaded earlier. */
-  const showGraph = (start_time, video_duration_ms) => {
+  const showGraph = (start_time, video_duration_ms, video_duration_sec) => {
     // take care of gap at beginning
-    graph.setXScale(start_time, video_duration_ms);
-    graph.updatePlot({
-      "joy": 0,
-      "anger": 0,
-      "disgust": 0,
-      "contempt": 0,
-      "surprise": 0
-    }, start_time);
-
+    $("#demo-setup").removeClass("d-flex");
     $("#demo-setup").fadeOut("fast", () => {
-      $("#video-container").show();
-      graph.initPlot();
+      $("#video-container").addClass("d-flex");
+      graph
+        .initPlot()
+        .setXScale(start_time, video_duration_ms)
+        .updatePlot({
+          "joy": 0,
+          "anger": 0,
+          "disgust": 0,
+          "contempt": 0,
+          "surprise": 0
+        }, start_time)
+        .configureForPlayback(video_duration_sec);
     });
   };
 
   /** Load and bind handlers for the various emotion buttons. */
   const loadGraphButtons = () => {
-    // "show all" button
-    $("#all").css("border", "3px solid #ffcc66");
     // Register click handlers for each emotion button
     $("#all").click(graph.allButtonClickHandler);
-
     graph.emotions.forEach((val) => {
       $("#"+val).click(graph.EmotionButtonClickHandler(val));
     });
@@ -503,12 +550,13 @@ function Demo() {
 
     if (player("getPlayingState")) {
       clearInterval(cursor_interval);
-    }
-    graph.translateCursor(x_click);
-    player("seek", playback_time);
-
-    if (player("getPlayingState")) {
+      graph.translateCursor(x_click);
+      player("seek", playback_time);
       trackVideo();
+    } else {
+      graph.translateCursor(x_click);
+      player("seek", playback_time);
+      
     }
   };
 
