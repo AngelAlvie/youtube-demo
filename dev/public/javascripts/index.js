@@ -124,9 +124,9 @@ function Demo() {
       detector.addEventListener("onInitializeSuccess", () => {
         resolve();
       });
-      detector.addEventListener("onInitializeFailure", () => {
-        reject("msg-affdex-failure");
-      });
+      //detector.addEventListener("onInitializeFailure", () => {
+      //  reject("msg-affdex-failure");
+      //});
       detector.addEventListener("onImageResultsSuccess", (faces, img, timestamp) => {
         if (state === self.States.RECORDING) {
           // account for time spent buffering
