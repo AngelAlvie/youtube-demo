@@ -91,7 +91,7 @@ function AsyncPlayer() {
       //console.log(window);
     } else if (message === "play") {
       player.addEventListener("onStateChange", onPlayerStateChange(cb));
-      player.addEventListener("onPlayerError", onPlayerError(cb));
+      player.addEventListener("onError", onPlayerError(cb));
       player.loadVideoById(data); // we assume that data is a video id
     } else if (message === "seek") {
       player.seekTo(data);        // we assume that data is a time

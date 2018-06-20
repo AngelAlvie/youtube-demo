@@ -273,6 +273,7 @@ function Demo() {
         if (ampersandPosition !== -1) {
           video_id = video_id.substring(0, ampersandPosition);
         }
+        transitionToRecording(video_id);
       } else { // treat as search
         const url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=" + API_KEY + "&maxResults=10&safeSearch=strict&q=" + blob;
         httpGetAsync(url)
@@ -355,7 +356,7 @@ function Demo() {
         detector.stop();
         noInternet();
       } else if (message ==="error") {
-        showMessage("msg-player-failure");
+        showMessage("msg-bad-url");
       }
     });
   };
