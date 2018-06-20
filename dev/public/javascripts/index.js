@@ -119,12 +119,14 @@ function Demo() {
         showMessage("msg-starting-webcam");
       });
       detector.addEventListener("onWebcamConnectFailure", () => {
+        stopLoading();
         reject("msg-webcam-failure");
       });
       detector.addEventListener("onInitializeSuccess", () => {
         resolve();
       });
       detector.addEventListener("onInitializeFailure", () => {
+        stopLoading();
         reject("msg-affdex-failure");
       });
       detector.addEventListener("onImageResultsSuccess", (faces, img, timestamp) => {
@@ -151,6 +153,7 @@ function Demo() {
       const face_video = $("#facevideo-node video")[0];
       face_video.addEventListener("playing", () => {
         showMessage("msg-detector-status");
+        $("#facevideo-node").hide();
       });
     });
   };
@@ -197,12 +200,18 @@ function Demo() {
         $("#btn-start").click();
       }
     });
+    stopLoading();
     // Render the instructions
     showMessage("instructions");
     // Render the Youtube Videos
     populateExamples();
 
     state = self.States.SEARCHING;
+  };
+
+  /** Remove the loading element from the view */
+  const stopLoading = () => {
+    $(".loading-state").hide();
   };
 
   /** Set ordering of initial videos to be in the same order as the video ids list. */
@@ -273,6 +282,7 @@ function Demo() {
         if (ampersandPosition !== -1) {
           video_id = video_id.substring(0, ampersandPosition);
         }
+        transitionToRecording(video_id);
       } else { // treat as search
         const url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=" + API_KEY + "&maxResults=10&safeSearch=strict&q=" + blob;
         httpGetAsync(url)
@@ -286,6 +296,7 @@ function Demo() {
    * @param {string} text - String that represents JSON data */
   const addToSearchResults = (results) => {
     $("#search-results").empty();
+    $("#search-results").show();
     const list = results.items;
 
     // add results
@@ -295,15 +306,16 @@ function Demo() {
       const id = v.id.videoId;
       let result = document.createElement("div");
       result.className = "list-group-item";
+      result.id = id;
       result.innerHTML = 
-      `<table>
+      `<table style="border:none;">
         <tr>
-          <td><img class="thumbnail" id="${id}" src="${s.thumbnails.medium.url}" style="margin-right:15px"></td>
+          <td><img class="thumbnail" src="${s.thumbnails.medium.url}" style="margin-right:15px"></td>
           <td valign="top"><h3>${s.title}</h3><span>${s.description}</span></td>
         </tr>
       </table>`;    
       $("#search-results").append(result);
-      $("#"+id).click({id: id}, onVideoClick);  // These are buttons that are being used in start button click. i don't know why there is one big function
+      $(result).click({id: id}, onVideoClick);  // These are buttons that are being used in start button click. i don't know why there is one big function
     });
 
     // show a message for when no videos were found
@@ -355,7 +367,7 @@ function Demo() {
         detector.stop();
         noInternet();
       } else if (message ==="error") {
-        showMessage("msg-player-failure");
+        showMessage("msg-bad-url");
       }
     });
   };

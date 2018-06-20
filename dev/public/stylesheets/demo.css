@@ -1,7 +1,10 @@
+
 body {
     background-color: #111;
     margin-top: 15px;
     margin-bottom: 15px;
+
+    position: relative;
 }
 
 h3 {
@@ -33,7 +36,7 @@ h3 {
 #facevideo-node {
     width: 642px;
     height: 482px;
-    display: inline-block;
+    display: none; /* Never display this face video*/
 }
 
 #instructions {
@@ -125,10 +128,11 @@ text.time {
 
 .buttons:active {
     box-shadow: 0 0 4px 2px rgba(0,0,0,.3) inset;
-    position: relative;
-    top: 1px;
+    /*position: relative;
+    top: 1px; */
 }
 
+/* not sure what this class does */
 .buttons:before
 {
     float: left;
@@ -143,22 +147,9 @@ text.time {
     cursor: pointer;
 }
 
-.all-face:before
-{ content: "\1F610"; }
-.smiling-face:before
-{ content: "\1F603"; }
-.angry-face:before
-{content : "\1F620";}
-.contempt-face:before
-{content : "\1F60F";}
-.disgusted-face:before
-{content : "\1F601";}
-.surprise-face:before
-{content : "\1F62F";}
-
 .box-squared {
     width: 110px;
-    height: 30px;
+    height: 35px;
     line-height: 28px;
 }
 
@@ -179,4 +170,54 @@ text.time {
 }
 .surprise-box {
     background: green;
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 70px;
+    width: 100%;
+}
+
+.list-group-item {
+    border:none;
+}
+.list-group-item:hover {
+    background-color: #1f1f1f;
+    cursor: pointer;
+}
+
+.affectiva-logo {
+    position: absolute;
+    right: 70;
+    border: 0;
+    height: 45px;
+    width: 225px;
+}
+
+.loading-state {
+    position: absolute;
+    width: 100%;
+    height: 20%;
+    margin-left: -50%;
+    margin-top: -10%;
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    font-size: 14pt;
+}
+
+.loader {
+    border: 7px solid #f3f3f3; /* Light grey */
+    border-top: 7px solid #E80089; /* Blue */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1.5s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-360deg); }
 }
