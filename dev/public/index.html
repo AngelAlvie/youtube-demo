@@ -62,33 +62,37 @@
             <div class="alert alert-warning" role="alert"><strong>Error: </strong>There was a problem with the youtube player. Please try reloading the page again.</div>
         </div>
         <div class="col-md-8 col-md-offset-2" id="instructions">
-            <div class="well">
-                <p><strong>Welcome!</strong></p>
-                <p>This demo uses Affectiva's JavaScript SDK to analyze your emotions as you watch a YouTube video. Before starting this demo, please make sure that your face is centered in the screen and the room lighting is adequate.</p>
-                <p><strong>Instructions:</strong></p>
-                <p>Search a YouTube video by keyword or enter its URL, and with your webcam turned on, you'll be able to see your emotions both during the video and during playback:</p>
-
-                <div class="form-group">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="start-form" placeholder="Enter a URL or search YouTube here..." autofocus>
-                        <span class="input-group-btn">
-                            <button id="btn-start" class="btn btn-primary" type="button">Start</button>
-                        </span>
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title"><strong>Welcome!</strong></h6>
+                    <p class="card-text">This demo uses Affectiva's JavaScript SDK to analyze your emotions as you watch a YouTube video. Before starting this demo, please make sure that your face is centered in the screen and the room lighting is adequate.</p>
+                    <h6 class="card-title"><strong>Instructions:</strong></h6>
+                    <p class="card-text">Search a YouTube video by keyword or enter its URL, and with your webcam turned on, you'll be able to see your emotions both during the video and during playback:</p>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="start-form" placeholder="Enter a URL or search YouTube here..." autofocus>
+                            <span class="input-group-btn">
+                                <button id="btn-start" class="btn btn-primary" type="button">Start</button>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="well list-group" id="search-results" style="display: none;"></div>
-            <div class="well">
-                <p>Here are some selected videos to get you started:</p>
-                <div class="row">
-                    <div class="col-md-4 starter-container" id="example-0"></div>
-                    <div class="col-md-4 starter-container" id="example-1"></div>
-                    <div class="col-md-4 starter-container" id="example-2"></div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4 starter-container" id="example-3"></div>
-                    <div class="col-md-4 starter-container" id="example-4"></div>
-                    <div class="col-md-4 starter-container" id="example-5"></div>
+            <div class="card list-group" id="search-results" style="display: none;"></div>
+            <div class="card">
+                <div class="card-body">
+                    <p>Here are some selected videos to get you started:</p>
+                    <div class="row">
+                        <div class="col-md-4 starter-container" id="example-0"></div>
+                        <div class="col-md-4 starter-container" id="example-1"></div>
+                        <div class="col-md-4 starter-container" id="example-2"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 starter-container" id="example-3"></div>
+                        <div class="col-md-4 starter-container" id="example-4"></div>
+                        <div class="col-md-4 starter-container" id="example-5"></div>
+                    </div>
                 </div>
             </div>
 

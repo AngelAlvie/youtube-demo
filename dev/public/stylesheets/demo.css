@@ -3,8 +3,6 @@ body {
     background-color: #111;
     margin-top: 15px;
     margin-bottom: 15px;
-
-    position: relative;
 }
 
 h3 {
@@ -196,13 +194,9 @@ text.time {
 }
 
 .loading-state {
-    position: absolute;
+
     width: 100%;
     height: 20%;
-    margin-left: -50%;
-    margin-top: -10%;
-    top: 50%;
-    left: 50%;
     text-align: center;
     font-size: 14pt;
 }
