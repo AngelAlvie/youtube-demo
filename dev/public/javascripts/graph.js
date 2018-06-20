@@ -157,7 +157,6 @@ function Graph (id) {
         .attr("stroke-opacity", "1");
 
       wasNil = false;
-      console.log("called");
     } else {
       self
         .addDataPoint(emotionTable, timestamp)
