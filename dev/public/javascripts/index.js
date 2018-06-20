@@ -145,6 +145,7 @@ function Demo() {
             graph.updatePlot(faces[0].emotions, fake_timestamp);
           } else {
             frames_since_last_face++;
+            graph.noData();
           }
         }
       });

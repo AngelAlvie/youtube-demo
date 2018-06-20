@@ -18,7 +18,6 @@ function Graph (id) {
   let x_scale = d3.scaleLinear().domain([0, 0]).range([0, svg_width]);
   let y_scale = d3.scaleLinear().domain([100, 0]).range([2, 248]);
   let time_scale = null;
-  let processed_frames = [ [], [], [], [], [] ];
   let video_cutoff_sec = 0;
   let video_duration_sec = 0;
   const path = d3.line()
@@ -26,6 +25,10 @@ function Graph (id) {
     .x((d, i) => x_scale(d[0]))
     .y((d, i) => y_scale(d[1]));
 
+  // For data nulling
+  let processed_frames = [[[],[],[],[],[]]];
+  let currentCurvesIdx = 0;
+  let wasNil = false;
   // public members
   this.emotions = ["joy", "anger", "disgust", "contempt", "surprise"];
   
@@ -108,23 +111,62 @@ function Graph (id) {
    * @param {string:float} emotionTable - this is a dictionary that maps each emotion to a floating point number
    * @param {float} timestamp - this is the timestamp in the video where we plot the data (effectively the x coordinate). */
   this.addDataPoint = (emotionTable, timestamp) => {
-    this.emotions.forEach((val, idx) => {
-      processed_frames[idx].push([timestamp, emotionTable[val]]);
+    self.emotions.forEach((val, idx) => {
+      processed_frames[currentCurvesIdx][idx].push([timestamp, emotionTable[val]]);
     });
     return self;
   };
 
+  /** Tells graph that there is no data to plot. It will resolve this by finishing the current svg, and creating a new svg */
+  this.noData = () => {
+    if (!wasNil) {
+      //Here we increment current curvesIdx, and initialize some new curves
+      currentCurvesIdx++;
+
+      processed_frames.push([[],[],[],[],[]]);
+    }
+    wasNil = true;
+  };
 
   /** updates the plot to have up to date information
    * @param {string:float} emotionTable - this is a dictionary that maps each emotion to a floating point number
    * @param {float} timestamp - this is the timestamp in the video where we plot the data (effectively the x coordinate). */
   this.updatePlot = (emotionTable, timestamp) => {
-    self
-      .addDataPoint(emotionTable, timestamp)
-      .getCurves()
-      .data(processed_frames)   // curves are assigned in index order, this is how d3 works.
-      .attr("d", path);
+    
+    if (wasNil) {
+      var initial_data = [
+        [ [timestamp, emotionTable["joy"]] ], // joy
+        [ [timestamp, emotionTable["anger"]] ], // anger
+        [ [timestamp, emotionTable["disgust"]] ], // disgust
+        [ [timestamp, emotionTable["contempt"]] ], // contempt
+        [ [timestamp, emotionTable["surprise"]] ]  // surprise
+      ];
+  
+      self
+        .getCurves()
+        .filter(".c"+currentCurvesIdx.toString())
+        .data(initial_data)
+        .enter()
+        .append("svg:path")
+        .attr("class", "curve c"+ currentCurvesIdx.toString()) // we append c1 c2 c3 whatever, depending on the current svg.
+        .attr("id", function(d, i){return self.emotions[i];})
+        .attr("d", path)
+        .attr("stroke", function(d, i) {return colors[i];})
+        .attr("fill", "transparent")
+        .attr("stroke-width","2px")
+        .attr("stroke-opacity", "1");
 
+      wasNil = false;
+      console.log("called");
+    } else {
+      self
+        .addDataPoint(emotionTable, timestamp)
+        .getCurves()
+        .filter(".c"+currentCurvesIdx.toString())
+        .data(processed_frames[currentCurvesIdx])   // curves are assigned in index order, this is how d3 works.
+        .attr("d", path);
+
+    }    
     return self;
   };
   
@@ -144,7 +186,7 @@ function Graph (id) {
       .data(initial_data)
       .enter()
       .append("svg:path")
-      .attr("class", "curve")
+      .attr("class", "curve c"+ currentCurvesIdx.toString()) // we append c1 c2 c3 whatever, depending on the current svg.
       .attr("id", function(d, i){return self.emotions[i];})
       .attr("d", path)
       .attr("stroke", function(d, i) {return colors[i];})
