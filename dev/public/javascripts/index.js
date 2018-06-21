@@ -6,15 +6,16 @@ const browserCheck = () => {
   const isChrome = !!window.chrome && !!window.chrome.webstore;
   const isFirefox = typeof InstallTrigger !== "undefined";
   const isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(" OPR/") >= 0;
-  return (isChrome || isFirefox || isOpera);
+  const isEdge = navigator.userAgent.indexOf("Edge") >= 0;
+  return (isChrome || isFirefox || isOpera || isEdge);
 };
 
 $(document).ready(() => {
   JSSDKDemo = new Demo();
-  if (/* browserCheck() reinsert after the changes have been made*/true) {
+  if (browserCheck()) {
     JSSDKDemo.start();
   } else {
-    JSSDKDemo.createAlert("incompatible-browser", "It appears that you are using an unsupported browser. Please try this demo on Chrome, Firefox, or Opera.");
+    JSSDKDemo.createAlert("incompatible-browser", "It appears that you are using an unsupported browser. Please try this demo on an updated version of Chrome, Firefox, Opera or Edge.");
   }
 });
 
