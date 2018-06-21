@@ -30,107 +30,107 @@
 <div class="header">
     <a href="https://www.affectiva.com/" target="_blank"><img class="affectiva-logo"  src="images/affectiva-logo.png"></a>
 </div>
-<div class="container">
-    <div class="loading-state">
-        <div class="loader"></div>
-        <br>
-        <div class="demo-message" id="msg-starting-webcam">
-            Connecting to webcam...
-        </div>
-        <div class="demo-message" id="msg-detector-status">
-            Loading the emotion detector. This may take a few minutes ...
+<div class="main container">
+    <div class="row align-items-center loading-row">
+        <div class="col loading-state">
+            <div class="loader"></div>
+            <br>
+            <div class="demo-message" id="msg-starting-webcam">
+                Connecting to webcam...
+            </div>
+            <div class="demo-message" id="msg-detector-status">
+                Loading the emotion detector. This may take a few minutes ...
+            </div>
         </div>
     </div>
     <div id="text-width"></div>
     <div id="lightbox"></div>
     <div id="facevideo-node"></div>
     <div id="demo-setup">
-    <div id="messages" class="row">
-        <div class="col-md-6 col-md-offset-3 demo-message" id="msg-webcam-failure">
-            <div class="alert alert-danger" role="alert"><strong>Error: </strong>Failed to connect to webcam.</div>
-        </div>
-        <div class="col-md-6 col-md-offset-3 demo-message" id="msg-bad-url">
-            <div class="alert alert-warning" role="alert"><strong>Error: </strong>Please enter a valid YouTube URL or search phrase.</div>
-        </div>
-        <div class="col-md-6 col-md-offset-3 demo-message" id="msg-affdex-failure">
-            <div class="alert alert-danger" role="alert"><strong>Error: </strong>Unable to load the emotion detector. Please reload this page.</div>
-        </div>
-        <div class="col-md-6 col-md-offset-3 demo-message" id="msg-short-video">
-            <div class="alert alert-warning" role="alert"><strong>Error: </strong>That YouTube video is too short.</div>
-        </div>
-        <div class="col-md-6 col-md-offset-3 demo-message" id="msg-player-failure">
-            <div class="alert alert-warning" role="alert"><strong>Error: </strong>There was a problem with the youtube player. Please try reloading the page again.</div>
-        </div>
-        <div class="col-md-8 col-md-offset-2" id="instructions">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title"><strong>Welcome!</strong></h6>
-                    <p class="card-text">This demo uses Affectiva's JavaScript SDK to analyze your emotions as you watch a YouTube video. Before starting this demo, please make sure that your face is centered in the screen and the room lighting is adequate.</p>
-                    <h6 class="card-title"><strong>Instructions:</strong></h6>
-                    <p class="card-text">Search a YouTube video by keyword or enter its URL, and with your webcam turned on, you'll be able to see your emotions both during the video and during playback:</p>
-                    
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="start-form" placeholder="Enter a URL or search YouTube here..." autofocus>
-                            <span class="input-group-btn">
-                                <button id="btn-start" class="btn btn-primary" type="button">Start</button>
-                            </span>
+        <div id="messages" class="row">
+            <div class="col-md-6 col-md-offset-3 demo-message" id="msg-webcam-failure">
+                <div class="alert alert-danger" role="alert"><strong>Error: </strong>Failed to connect to webcam.</div>
+            </div>
+            <div class="col-md-6 col-md-offset-3 demo-message" id="msg-bad-url">
+                <div class="alert alert-warning" role="alert"><strong>Error: </strong>Please enter a valid YouTube URL or search phrase.</div>
+            </div>
+            <div class="col-md-6 col-md-offset-3 demo-message" id="msg-affdex-failure">
+                <div class="alert alert-danger" role="alert"><strong>Error: </strong>Unable to load the emotion detector. Please reload this page.</div>
+            </div>
+            <div class="col-md-6 col-md-offset-3 demo-message" id="msg-short-video">
+                <div class="alert alert-warning" role="alert"><strong>Error: </strong>That YouTube video is too short.</div>
+            </div>
+            <div class="col-md-6 col-md-offset-3 demo-message" id="msg-player-failure">
+                <div class="alert alert-warning" role="alert"><strong>Error: </strong>There was a problem with the youtube player. Please try reloading the page again.</div>
+            </div>
+            <div class="col-md-8 col-md-offset-2" id="instructions">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title"><strong>Welcome!</strong></h6>
+                        <p class="card-text">This demo uses Affectiva's JavaScript SDK to analyze your emotions as you watch a YouTube video. Before starting this demo, please make sure that your face is centered in the screen and the room lighting is adequate.</p>
+                        <h6 class="card-title"><strong>Instructions:</strong></h6>
+                        <p class="card-text">Search a YouTube video by keyword or enter its URL, and with your webcam turned on, you'll be able to see your emotions both during the video and during playback:</p>
+
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="start-form" placeholder="Enter a URL or search YouTube here..." autofocus>
+                                <span class="input-group-btn">
+                                    <button id="btn-start" class="btn btn-primary" type="button">Start</button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="card list-group" id="search-results" style="display: none;"></div>
-            <div class="card">
-                <div class="card-body">
-                    <p>Here are some selected videos to get you started:</p>
-                    <div class="row">
-                        <div class="col-md-4 starter-container" id="example-0"></div>
-                        <div class="col-md-4 starter-container" id="example-1"></div>
-                        <div class="col-md-4 starter-container" id="example-2"></div>
+                <div class="card list-group" id="search-results" style="display: none;"></div>
+                <div class="card">
+                    <div class="card-body">
+                        <p>Here are some selected videos to get you started:</p>
+                        <div class="row">
+                            <div class="col-md-4 starter-container" id="example-0"></div>
+                            <div class="col-md-4 starter-container" id="example-1"></div>
+                            <div class="col-md-4 starter-container" id="example-2"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 starter-container" id="example-3"></div>
+                            <div class="col-md-4 starter-container" id="example-4"></div>
+                            <div class="col-md-4 starter-container" id="example-5"></div>
+                        </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-4 starter-container" id="example-3"></div>
-                        <div class="col-md-4 starter-container" id="example-4"></div>
-                        <div class="col-md-4 starter-container" id="example-5"></div>
-                    </div>
                 </div>
-            </div>
 
-        </div>
-    </div>
-
-</div>
-
-<div class="row" id="video-container">
-    <div class="col-md-12 text-center">
-        <div id="player" style="pointer-events: none"></div>
-        <div id="svg-container">
-            <div class="row">
-                <div id="ul-wrapper" class="col-md-2">
-                    <ul id="nav">
-                    <li class="all buttons all-box box-squared" id="all"><span> &#x1F610; Show all</span></li>
-                    <li class="joy buttons joy-box box-squared" id="joy"><span>&#x1F603; Joy</span></li>
-                    <li class="anger buttons angry-face anger-box box-squared" id="anger"><span>&#x1F620; Anger</span></li>
-                    <li class="disgust buttons disgusted-face disgust-box box-squared" id="disgust"><span>&#x1F601; Disgust</span></li>
-                    <li class="contempt buttons contempt-face contempt-box box-squared" id="contempt"><span>&#x1F60F; Contempt</span></li>
-                    <li class="surprise buttons surprise-face surprise-box box-squared" id="surprise"><span>&#x1F62F; Surprise</span></li>
-                    </ul>
-                </div>
-                <div id="svg-wrapper" class="col-md-8 text-center">
-                    <svg id="svg-curve"></svg>
-                </div>
-                <div id="play-again" class="col-md-2">
-                  <div class="well">
-                    <p>Frame capture complete!</p>
-                    <p><small>Watch the video synchronized with your emotions.</small></p>
-                    <p>&nbsp;</p>
-                    <button id="btn-play-again" class="btn btn-primary">Ok, got it</button>
-                  </div>
-                </div>
             </div>
         </div>
     </div>
-</div>
+    <div class="row" id="video-container">
+        <div class="col-md-12 text-center">
+            <div id="player" style="pointer-events: none"></div>
+            <div id="svg-container">
+                <div class="row">
+                    <div id="ul-wrapper" class="col-md-2">
+                        <ul id="nav">
+                        <li class="all buttons all-box box-squared" id="all"><span> &#x1F610; Show all</span></li>
+                        <li class="joy buttons joy-box box-squared" id="joy"><span>&#x1F603; Joy</span></li>
+                        <li class="anger buttons angry-face anger-box box-squared" id="anger"><span>&#x1F620; Anger</span></li>
+                        <li class="disgust buttons disgusted-face disgust-box box-squared" id="disgust"><span>&#x1F601; Disgust</span></li>
+                        <li class="contempt buttons contempt-face contempt-box box-squared" id="contempt"><span>&#x1F60F; Contempt</span></li>
+                        <li class="surprise buttons surprise-face surprise-box box-squared" id="surprise"><span>&#x1F62F; Surprise</span></li>
+                        </ul>
+                    </div>
+                    <div id="svg-wrapper" class="col-md-8 text-center">
+                        <svg id="svg-curve"></svg>
+                    </div>
+                    <div id="play-again" class="col-md-2">
+                      <div class="well">
+                        <p>Frame capture complete!</p>
+                        <p><small>Watch the video synchronized with your emotions.</small></p>
+                        <p>&nbsp;</p>
+                        <button id="btn-play-again" class="btn btn-primary">Ok, got it</button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>

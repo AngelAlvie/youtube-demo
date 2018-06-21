@@ -211,7 +211,7 @@ function Demo() {
 
   /** Remove the loading element from the view */
   const stopLoading = () => {
-    $(".loading-state").hide();
+    $(".loading-row").hide();
   };
 
   /** Set ordering of initial videos to be in the same order as the video ids list. */
