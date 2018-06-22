@@ -201,17 +201,23 @@ function Demo() {
       }
     });
     stopLoading();
-    // Render the instructions
-    showMessage("instructions");
-    // Render the Youtube Videos
-    populateExamples();
+    startSearch();
 
     state = self.States.SEARCHING;
   };
 
   /** Remove the loading element from the view */
   const stopLoading = () => {
-    $(".loading-row").hide();
+    $("#loading-row").addClass("d-none").removeClass("d-flex");
+
+  };
+
+  const startSearch = () => {
+    $("#demo-setup").addClass("d-flex").removeClass("d-none")
+    // Render the instructions
+    showMessage("instructions");
+    // Render the Youtube Videos
+    populateExamples();
   };
 
   /** Set ordering of initial videos to be in the same order as the video ids list. */

@@ -31,7 +31,7 @@
     <a href="https://www.affectiva.com/" target="_blank"><img class="affectiva-logo"  src="images/affectiva-logo.png"></a>
 </div>
 <div class="main container">
-    <div class="row align-items-center loading-row">
+    <div class="row d-flex align-items-center h-100" id="loading-row">
         <div class="col loading-state">
             <div class="loader"></div>
             <br>
@@ -46,58 +46,55 @@
     <div id="text-width"></div>
     <div id="lightbox"></div>
     <div id="facevideo-node"></div>
-    <div id="demo-setup">
-        <div id="messages" class="row">
-            <div class="col-md-6 col-md-offset-3 demo-message" id="msg-webcam-failure">
-                <div class="alert alert-danger" role="alert"><strong>Error: </strong>Failed to connect to webcam.</div>
-            </div>
-            <div class="col-md-6 col-md-offset-3 demo-message" id="msg-bad-url">
-                <div class="alert alert-warning" role="alert"><strong>Error: </strong>Please enter a valid YouTube URL or search phrase.</div>
-            </div>
-            <div class="col-md-6 col-md-offset-3 demo-message" id="msg-affdex-failure">
-                <div class="alert alert-danger" role="alert"><strong>Error: </strong>Unable to load the emotion detector. Please reload this page.</div>
-            </div>
-            <div class="col-md-6 col-md-offset-3 demo-message" id="msg-short-video">
-                <div class="alert alert-warning" role="alert"><strong>Error: </strong>That YouTube video is too short.</div>
-            </div>
-            <div class="col-md-6 col-md-offset-3 demo-message" id="msg-player-failure">
-                <div class="alert alert-warning" role="alert"><strong>Error: </strong>There was a problem with the youtube player. Please try reloading the page again.</div>
-            </div>
-            <div class="col-md-8 col-md-offset-2" id="instructions">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title"><strong>Welcome!</strong></h6>
-                        <p class="card-text">This demo uses Affectiva's JavaScript SDK to analyze your emotions as you watch a YouTube video. Before starting this demo, please make sure that your face is centered in the screen and the room lighting is adequate.</p>
-                        <h6 class="card-title"><strong>Instructions:</strong></h6>
-                        <p class="card-text">Search a YouTube video by keyword or enter its URL, and with your webcam turned on, you'll be able to see your emotions both during the video and during playback:</p>
-
-                        <div class="form-group">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="start-form" placeholder="Enter a URL or search YouTube here..." autofocus>
-                                <span class="input-group-btn">
-                                    <button id="btn-start" class="btn btn-primary" type="button">Start</button>
-                                </span>
-                            </div>
+    
+    <div class="row d-none align-items-center h-100" id="demo-setup">
+        <div class="col-md-6 offset-md-3 demo-message" id="msg-webcam-failure">
+            <div class="alert alert-danger" role="alert"><strong>Error: </strong>Failed to connect to webcam.</div>
+        </div>
+        <div class="col-md-6 offset-md-3 demo-message" id="msg-bad-url">
+            <div class="alert alert-warning" role="alert"><strong>Error: </strong>Please enter a valid YouTube URL or search phrase.</div>
+        </div>
+        <div class="col-md-6 offset-md-3 demo-message" id="msg-affdex-failure">
+            <div class="alert alert-danger" role="alert"><strong>Error: </strong>Unable to load the emotion detector. Please reload this page.</div>
+        </div>
+        <div class="col-md-6 offset-md-3 demo-message" id="msg-short-video">
+            <div class="alert alert-warning" role="alert"><strong>Error: </strong>That YouTube video is too short.</div>
+        </div>
+        <div class="col-md-6 offset-md-3 demo-message" id="msg-player-failure">
+            <div class="alert alert-warning" role="alert"><strong>Error: </strong>There was a problem with the youtube player. Please try reloading the page again.</div>
+        </div>
+        <div class="col-md-8 offset-md-2" id="instructions">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title"><strong>Welcome!</strong></h6>
+                    <p class="card-text">This demo uses Affectiva's JavaScript SDK to analyze your emotions as you watch a YouTube video. Before starting this demo, please make sure that your face is centered in the screen and the room lighting is adequate.</p>
+                    <h6 class="card-title"><strong>Instructions:</strong></h6>
+                    <p class="card-text">Search a YouTube video by keyword or enter its URL, and with your webcam turned on, you'll be able to see your emotions both during the video and during playback:</p>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="start-form" placeholder="Enter a URL or search YouTube here..." autofocus>
+                            <span class="input-group-btn">
+                                <button id="btn-start" class="btn btn-primary" type="button">Start</button>
+                            </span>
                         </div>
                     </div>
                 </div>
-                <div class="card list-group" id="search-results" style="display: none;"></div>
-                <div class="card">
-                    <div class="card-body">
-                        <p>Here are some selected videos to get you started:</p>
-                        <div class="row">
-                            <div class="col-md-4 starter-container" id="example-0"></div>
-                            <div class="col-md-4 starter-container" id="example-1"></div>
-                            <div class="col-md-4 starter-container" id="example-2"></div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 starter-container" id="example-3"></div>
-                            <div class="col-md-4 starter-container" id="example-4"></div>
-                            <div class="col-md-4 starter-container" id="example-5"></div>
-                        </div>
+            </div>
+            <div class="card list-group" id="search-results" style="display: none;"></div>
+            <div class="card">
+                <div class="card-body">
+                    <p>Here are some selected videos to get you started:</p>
+                    <div class="row">
+                        <div class="col-md-4 starter-container" id="example-0"></div>
+                        <div class="col-md-4 starter-container" id="example-1"></div>
+                        <div class="col-md-4 starter-container" id="example-2"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 starter-container" id="example-3"></div>
+                        <div class="col-md-4 starter-container" id="example-4"></div>
+                        <div class="col-md-4 starter-container" id="example-5"></div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
