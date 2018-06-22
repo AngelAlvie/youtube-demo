@@ -213,7 +213,7 @@ function Demo() {
   };
 
   const startSearch = () => {
-    $("#demo-setup").addClass("d-flex").removeClass("d-none")
+    $("#demo-setup").addClass("d-flex").removeClass("d-none");
     // Render the instructions
     showMessage("instructions");
     // Render the Youtube Videos
@@ -241,12 +241,27 @@ function Demo() {
   const populateExamples = () => {
     
     sortVideos();
+    
+    const example_container = $("#example-container");
+
+    // list of lists for how we want to orient the examples, depending on the # of examples we have
+    // We will have breakpoints in the order xs, sm, md, lg, xl
+    const breakpoints = [
+      [12, 6, 6, 4, 4], // < 4
+      [12, 6, 6, 6, 6], // = 4 (We want a special behavior for this sweet spot),
+      [12, 6, 6, 4, 4]  // > 4
+    ]; 
+
+    const bp = (initial_videos.length > 4) ? breakpoints[2] : ((initial_videos.length === 4) ? breakpoints[1] : breakpoints[0]); 
 
     initial_videos.forEach((video, index) => {
-      const id = "#example-" + index;
       const thumbnail_url = "https://i.ytimg.com/vi/" + video.id + "/mqdefault.jpg";
 
-      let JQVideoNode = $(id);
+      let JQVideoColumn = $(`<div class='col-${bp[0]} col-sm-${bp[1]} col-md-${bp[2]} col-lg-${bp[3]} col-xl-${bp[4]}'></div>`);
+      let JQVideoNode =  $("<div class='example card m-1'></div>");
+      
+      JQVideoColumn.appendTo(example_container);
+      JQVideoNode.appendTo(JQVideoColumn);
 
       JQVideoNode[0].style.backgroundImage = "url(" + thumbnail_url + ")";
       // Give it the click handler
@@ -254,10 +269,10 @@ function Demo() {
       
       JQVideoNode.hover(() => {
         JQVideoNode[0].style.backgroundBlendMode = "overlay";
-        JQVideoNode[0].innerText = video.title;
+        JQVideoNode.html("<p class='video-text'>" + video.title + "</p>");
       }, () => {
         JQVideoNode[0].style.backgroundBlendMode = "initial";
-        JQVideoNode[0].innerText = "";
+        JQVideoNode.html("");
       });
 
     });
@@ -275,7 +290,7 @@ function Demo() {
   };
 
   /** Perform search after start button clicked. */
-  const startButtonClicked = (_) => {
+  const startButtonClicked = (cb) => {
     $(".demo-message").hide();
     let video_id;
     if (state === self.States.SEARCHING) {
@@ -293,7 +308,8 @@ function Demo() {
         const url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=" + API_KEY + "&maxResults=10&safeSearch=strict&q=" + blob;
         httpGetAsync(url)
           .then(addToSearchResults)
-          .catch(ignore);
+          .catch(ignore)
+          .then(cb);
       }
     }
   };
@@ -332,11 +348,6 @@ function Demo() {
       message.innerHTML = "<p>No results were found.</p>";
       $("#search-results").append(message);
     }
-
-    // scroll to results
-    $("html, body").animate({
-      scrollTop: $("#search-results").offset().top - 15
-    });
   };
 
   /** ==============================================================

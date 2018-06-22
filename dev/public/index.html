@@ -30,7 +30,7 @@
 <div class="header">
     <a href="https://www.affectiva.com/" target="_blank"><img class="affectiva-logo"  src="images/affectiva-logo.png"></a>
 </div>
-<div class="main container">
+<div class="main container d-flex flex-column">
     <div class="row d-flex align-items-center h-100" id="loading-row">
         <div class="col loading-state">
             <div class="loader"></div>
@@ -47,7 +47,7 @@
     <div id="lightbox"></div>
     <div id="facevideo-node"></div>
     
-    <div class="row d-none align-items-center h-100" id="demo-setup">
+    <div class="row d-none align-items-center flex-fill" id="demo-setup">
         <div class="col-md-6 offset-md-3 demo-message" id="msg-webcam-failure">
             <div class="alert alert-danger" role="alert"><strong>Error: </strong>Failed to connect to webcam.</div>
         </div>
@@ -64,7 +64,7 @@
             <div class="alert alert-warning" role="alert"><strong>Error: </strong>There was a problem with the youtube player. Please try reloading the page again.</div>
         </div>
         <div class="col-md-8 offset-md-2" id="instructions">
-            <div class="card">
+            <div class="card my-3">
                 <div class="card-body">
                     <h6 class="card-title"><strong>Welcome!</strong></h6>
                     <p class="card-text">This demo uses Affectiva's JavaScript SDK to analyze your emotions as you watch a YouTube video. Before starting this demo, please make sure that your face is centered in the screen and the room lighting is adequate.</p>
@@ -80,19 +80,11 @@
                     </div>
                 </div>
             </div>
-            <div class="card list-group" id="search-results" style="display: none;"></div>
-            <div class="card">
+            <div class="card my-3 list-group" id="search-results" style="display: none;"></div>
+            <div class="card my-3">
                 <div class="card-body">
                     <p>Here are some selected videos to get you started:</p>
-                    <div class="row">
-                        <div class="col-md-4 starter-container" id="example-0"></div>
-                        <div class="col-md-4 starter-container" id="example-1"></div>
-                        <div class="col-md-4 starter-container" id="example-2"></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4 starter-container" id="example-3"></div>
-                        <div class="col-md-4 starter-container" id="example-4"></div>
-                        <div class="col-md-4 starter-container" id="example-5"></div>
+                    <div class="row justify-content-center no-gutters" id="example-container">
                     </div>
                 </div>
             </div>
