@@ -392,18 +392,19 @@ function Demo() {
   /** Show the graph that was loaded earlier. */
   const showGraph = (start_time, video_duration_ms) => {
     // take care of gap at beginning
-    graph.setXScale(start_time, video_duration_ms);
-    graph.updatePlot({
-      "joy": 0,
-      "anger": 0,
-      "disgust": 0,
-      "contempt": 0,
-      "surprise": 0
-    }, start_time);
-
+    
+    $("#demo-setup").removeClass("d-flex");
     $("#demo-setup").fadeOut("fast", () => {
       $("#video-container").show();
       graph.initPlot();
+      graph.setXScale(start_time, video_duration_ms);
+      graph.updatePlot({
+        "joy": 0,
+        "anger": 0,
+        "disgust": 0,
+        "contempt": 0,
+        "surprise": 0
+      }, start_time);
     });
   };
 

@@ -27,9 +27,7 @@
 </head>
 
 <body>
-<div class="header">
-    <a href="https://www.affectiva.com/" target="_blank"><img class="affectiva-logo"  src="images/affectiva-logo.png"></a>
-</div>
+<a href="https://www.affectiva.com/" target="_blank"><img class="affectiva-logo"  src="images/affectiva-logo.png"></a>
 <div class="main container d-flex flex-column">
     <div class="row d-flex align-items-center h-100" id="loading-row">
         <div class="col loading-state">
@@ -91,31 +89,35 @@
         </div>
     </div>
     <div class="row" id="video-container">
-        <div class="col-md-12 text-center">
-            <div id="player" style="pointer-events: none"></div>
-            <div id="svg-container">
-                <div class="row">
-                    <div id="ul-wrapper" class="col-md-2">
-                        <ul id="nav">
-                        <li class="all buttons all-box box-squared" id="all"><span> &#x1F610; Show all</span></li>
-                        <li class="joy buttons joy-box box-squared" id="joy"><span>&#x1F603; Joy</span></li>
-                        <li class="anger buttons angry-face anger-box box-squared" id="anger"><span>&#x1F620; Anger</span></li>
-                        <li class="disgust buttons disgusted-face disgust-box box-squared" id="disgust"><span>&#x1F601; Disgust</span></li>
-                        <li class="contempt buttons contempt-face contempt-box box-squared" id="contempt"><span>&#x1F60F; Contempt</span></li>
-                        <li class="surprise buttons surprise-face surprise-box box-squared" id="surprise"><span>&#x1F62F; Surprise</span></li>
-                        </ul>
+        <div class="col text-center">
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2" >
+                    <div id="video-wrapper">
+                        <div id="player" style="pointer-events: none"></div>
                     </div>
-                    <div id="svg-wrapper" class="col-md-8 text-center">
-                        <svg id="svg-curve"></svg>
-                    </div>
-                    <div id="play-again" class="col-md-2">
-                      <div class="well">
-                        <p>Frame capture complete!</p>
-                        <p><small>Watch the video synchronized with your emotions.</small></p>
-                        <p>&nbsp;</p>
-                        <button id="btn-play-again" class="btn btn-primary">Ok, got it</button>
-                      </div>
-                    </div>
+                </div>    
+            </div>
+           <div class="row" id="svg-container">
+                <div class="col-lg-2">
+                    <ul class="nav d-flex justify-content-center">
+                        <li class="nav-item all buttons all-box box-squared" id="all"><p> &#x1F610; Show all</p></li>
+                        <li class="nav-item joy buttons joy-box box-squared" id="joy"><p>&#x1F603; Joy</p></li>
+                        <li class="nav-item anger buttons angry-face anger-box box-squared" id="anger"><span>&#x1F620; Anger</span></li>
+                        <li class="nav-item disgust buttons disgusted-face disgust-box box-squared" id="disgust"><span>&#x1F601; Disgust</span></li>
+                        <li class="nav-item contempt buttons contempt-face contempt-box box-squared" id="contempt"><span>&#x1F60F; Contempt</span></li>
+                        <li class="nav-item surprise buttons surprise-face surprise-box box-squared" id="surprise"><span>&#x1F62F; Surprise</span></li>
+                    </ul>
+                </div>
+                <div id="svg-wrapper" class="col-lg-8 text-center" style>
+                    <svg id="svg-curve"></svg>
+                </div>
+                <div id="play-again" class="col-lg-2">
+                  <div class="well">
+                    <p>Frame capture complete!</p>
+                    <p><small>Watch the video synchronized with your emotions.</small></p>
+                    <p>&nbsp;</p>
+                    <button id="btn-play-again" class="btn btn-primary">Ok, got it</button>
+                  </div>
                 </div>
             </div>
         </div>

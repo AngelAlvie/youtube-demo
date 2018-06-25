@@ -6,7 +6,7 @@
 function Graph (id) {
   // preserve the internal reference to this object, and get around javascript's wonky `this` behavior.
   let self = this;
-
+  
   // private members
   const curveBox = d3.select(id);
   let cursor = null;
@@ -14,7 +14,7 @@ function Graph (id) {
   const colors = ["#FFFFFF", "orangered", "deeppink", "yellow", "green"];
   const selected_emotion_border_properties = "3px solid #ffcc66";
   let selected_emotion = "all";
-  const svg_width = 720;
+  let svg_width = 720;
   let x_scale = d3.scaleLinear().domain([0, 0]).range([0, svg_width]);
   let y_scale = d3.scaleLinear().domain([100, 0]).range([2, 248]);
   let time_scale = null;
@@ -151,6 +151,9 @@ function Graph (id) {
       .attr("fill", "transparent")
       .attr("stroke-width","2px")
       .attr("stroke-opacity", "1");
+
+    
+    svg_width = $(id).width();
 
     return self;
   };

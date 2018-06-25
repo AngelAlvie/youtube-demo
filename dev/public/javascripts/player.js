@@ -3,8 +3,8 @@
 function AsyncPlayer() {
   // This represents a closure, where I can define all of my variables that I need.
   let player = null;
-  const VIDEO_HEIGHT = 510;
-  const VIDEO_WIDTH = 853;
+  //const VIDEO_HEIGHT = 510;
+  //const VIDEO_WIDTH = 853;
   const VIDEO_VOLUME = 50;
   const VIDEO_LENGTH_THRESHOLD = 5;
 
@@ -16,8 +16,8 @@ function AsyncPlayer() {
 
   const initializeYouTubePlayer = (cb) => () => {
     player = new YT.Player("player", {
-      height: VIDEO_HEIGHT,
-      width: VIDEO_WIDTH,
+    //  height: VIDEO_HEIGHT,
+    // width: VIDEO_WIDTH,
       playerVars: {
         "controls": 0,
         "iv_load_policy": 3,
