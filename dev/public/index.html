@@ -27,9 +27,13 @@
 </head>
 
 <body>
-<a href="https://www.affectiva.com/" target="_blank"><img class="affectiva-logo"  src="images/affectiva-logo.png"></a>
 <div class="main container d-flex flex-column">
-    <div class="row d-flex align-items-center h-100" id="loading-row">
+    <div class="row justify-content-end">
+        <a href="https://www.affectiva.com/" target="_blank">
+            <img class="affectiva-logo"  src="images/affectiva-logo.png" width=225 height=45>
+        </a>
+    </div>
+    <div class="row d-flex align-items-center h-75" id="loading-row">
         <div class="col loading-state">
             <div class="loader"></div>
             <br>
@@ -99,8 +103,8 @@
             </div>
            <div class="row" id="svg-container">
                 <div class="col-lg-2">
-                    <ul class="nav d-flex justify-content-center">
-                        <li class="nav-item all buttons all-box box-squared" id="all"><p> &#x1F610; Show all</p></li>
+                    <ul class="nav d-flex flex-lg-column justify-content-center">
+                        <li class="nav-item all buttons all-box box-squared selected" id="all"><p> &#x1F610; Show all</p></li>
                         <li class="nav-item joy buttons joy-box box-squared" id="joy"><p>&#x1F603; Joy</p></li>
                         <li class="nav-item anger buttons angry-face anger-box box-squared" id="anger"><span>&#x1F620; Anger</span></li>
                         <li class="nav-item disgust buttons disgusted-face disgust-box box-squared" id="disgust"><span>&#x1F601; Disgust</span></li>

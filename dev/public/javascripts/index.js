@@ -414,11 +414,8 @@ function Demo() {
 
   /** Load and bind handlers for the various emotion buttons. */
   const loadGraphButtons = () => {
-    // "show all" button
-    $("#all").css("border", "3px solid #ffcc66");
     // Register click handlers for each emotion button
     $("#all").click(graph.allButtonClickHandler);
-
     graph.emotions.forEach((val) => {
       $("#"+val).click(graph.EmotionButtonClickHandler(val));
     });

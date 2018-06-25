@@ -12,7 +12,6 @@ function Graph (id) {
   let cursor = null;
   let cursor_text = null;
   const colors = ["#FFFFFF", "orangered", "deeppink", "yellow", "green"];
-  const selected_emotion_border_properties = "3px solid #ffcc66";
   let selected_emotion = "all";
   let svg_width = 720;
   let x_scale = d3.scaleLinear().domain([0, 0]).range([0, svg_width]);
@@ -69,8 +68,8 @@ function Graph (id) {
   this.resetSelectedEmotionButton = (emotion) => {
     // If the selected_emotion is not the one I just clicked, then toggle my current one, set me to all, and in
     if (selected_emotion !== emotion) {
-      $("#" + selected_emotion).css("border", "");
-      $("#" + emotion).css("border", selected_emotion_border_properties);
+      $("#" + selected_emotion).removeClass("selected");
+      $("#" + emotion).addClass("selected");
       selected_emotion = emotion;
     }
 
