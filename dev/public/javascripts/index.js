@@ -6,7 +6,8 @@ const browserCheck = () => {
   const isChrome = !!window.chrome && !!window.chrome.webstore;
   const isFirefox = typeof InstallTrigger !== "undefined";
   const isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(" OPR/") >= 0;
-  return (isChrome || isFirefox || isOpera);
+  const isEdge = navigator.userAgent.indexOf("Edge") >= 0;
+  return (isChrome || isFirefox || isOpera || isEdge);
 };
 
 $(document).ready(() => {
@@ -14,7 +15,7 @@ $(document).ready(() => {
   if (browserCheck()) {
     JSSDKDemo.start();
   } else {
-    JSSDKDemo.createAlert("incompatible-browser", "It appears that you are using an unsupported browser. Please try this demo on Chrome, Firefox, or Opera.");
+    JSSDKDemo.createAlert("incompatible-browser", "It appears that you are using an unsupported browser. Please try this demo on an updated version of Chrome, Firefox, Opera or Edge.");
   }
 });
 
@@ -44,6 +45,9 @@ function Demo() {
   // Internal state for the detector
   let time_buffering_ms = 0;
   let frames_since_last_face = 0;
+  const face_alert_threshold = 20;
+  const alert_transition_delay_in = 300;
+  const alert_transition_delay_out = 175;
   let face_visible = true;
   let detector = null;
 
@@ -77,7 +81,7 @@ function Demo() {
    * @param {string} id - Id of the html object that we cast the alert to
    * @param {string} text - text of the alert that we show to the user. */
   this.createAlert = (id, text) => {
-    $("#lightbox").fadeIn(500);
+    $("#lightbox").fadeIn(alert_transition_delay_in);
     $("<div></div>", {
       id: id,
       class: "alert alert-danger",
@@ -85,7 +89,7 @@ function Demo() {
       text: text,
     }).appendTo("#lightbox");
     $("#" + id).css({"text-align": "center", "z-index": 2});
-    $("#" + id).fadeIn(1000);
+    $("#" + id).fadeIn(alert_transition_delay_in);
   };
 
   /** ==============================================================
@@ -125,16 +129,15 @@ function Demo() {
       detector.addEventListener("onInitializeSuccess", () => {
         resolve();
       });
-      detector.addEventListener("onInitializeFailure", () => {
-        stopLoading();
-        reject("msg-affdex-failure");
-      });
+      //detector.addEventListener("onInitializeFailure", () => {
+      //  reject("msg-affdex-failure");
+      //});
       detector.addEventListener("onImageResultsSuccess", (faces, img, timestamp) => {
         if (state === self.States.RECORDING) {
           // account for time spent buffering
           const fake_timestamp = getCurrentTimeAdjusted();
           
-          if (frames_since_last_face > 100 && face_visible) {
+          if (frames_since_last_face > face_alert_threshold && face_visible) {
             face_visible = false;
             self.createAlert("no-face", "No face was detected. Please re-position your face and/or webcam.");
           }
@@ -147,6 +150,7 @@ function Demo() {
             graph.updatePlot(faces[0].emotions, fake_timestamp);
           } else {
             frames_since_last_face++;
+            graph.noData();
           }
         }
       });
@@ -585,10 +589,10 @@ function Demo() {
   const fadeAndRemove = (id) => {
     let removeObj = $(id);
 
-    removeObj.fadeOut(500, () => {
+    removeObj.fadeOut(alert_transition_delay_out, () => {
       removeObj.remove();
     });
-    $("#lightbox").fadeOut(1000);
+    $("#lightbox").fadeOut(alert_transition_delay_out);
   };
 
   /** Create an alert that tells the user that there is no internet connection. */
