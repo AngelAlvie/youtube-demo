@@ -29,6 +29,8 @@ function Graph (id) {
   let processed_frames = [[[],[],[],[],[]]];
   let currentCurvesIdx = 0;
   let wasNil = false;
+  let gray_boxes = [[]]; // This is an array of intervals that will maintain the timestamps of grayed out data.
+  let last_box = null;
   // public members
   this.emotions = ["joy", "anger", "disgust", "contempt", "surprise"];
   
@@ -118,12 +120,21 @@ function Graph (id) {
   };
 
   /** Tells graph that there is no data to plot. It will resolve this by finishing the current svg, and creating a new svg */
-  this.noData = () => {
+  this.noData = (timestamp) => {
     if (!wasNil) {
       //Here we increment current curvesIdx, and initialize some new curves
       currentCurvesIdx++;
 
       processed_frames.push([[],[],[],[],[]]);
+      gray_boxes.push([x_scale(timestamp)]); // First element is the timestamp that we lost.
+
+      last_box = self
+        .getCurveBox()
+        .append("rect");
+      initLastVoid();
+
+    } else {
+      plotLastVoid(timestamp);
     }
     wasNil = true;
   };
@@ -156,6 +167,10 @@ function Graph (id) {
         .attr("stroke-width","2px")
         .attr("stroke-opacity", "1");
 
+      // Now add the graybox to the SVG
+      gray_boxes[currentCurvesIdx].push(x_scale(timestamp));
+      plotLastVoid(timestamp);
+
       wasNil = false;
     } else {
       self
@@ -169,6 +184,20 @@ function Graph (id) {
     return self;
   };
   
+  var initLastVoid = () => {
+    last_box
+      .attr("x", gray_boxes[currentCurvesIdx][0] - 2)
+      .attr("y", 0)
+      .attr("width", 0)
+      .attr("height", 250)
+      .attr("fill", "#404040");
+  };
+  var plotLastVoid = (timestamp) => {
+    let x1 = gray_boxes[currentCurvesIdx][0];
+    let x2 = x_scale(timestamp);
+    last_box.attr("width", x2-x1 + 6);
+  };
+
   /** Instantiate the plot. zero the data, and set attributes of curves. */
   this.initPlot = () => {
 
