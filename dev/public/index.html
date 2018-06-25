@@ -2,6 +2,7 @@
 <head>
     <title>Affectiva JavaScript SDK MR Demo</title>
     <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- <link href="stylesheets/custom-theme.css" rel="stylesheet" type="text/css" /> -->
     <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.1.1/darkly/bootstrap.min.css" 
@@ -27,13 +28,11 @@
 </head>
 
 <body>
+<a href="https://www.affectiva.com/" target="_blank">
+    <img class="affectiva-logo"  src="images/affectiva-logo.png" width=225 height=45>
+</a>
 <div class="main container d-flex flex-column">
-    <div class="row justify-content-end">
-        <a href="https://www.affectiva.com/" target="_blank">
-            <img class="affectiva-logo"  src="images/affectiva-logo.png" width=225 height=45>
-        </a>
-    </div>
-    <div class="row d-flex align-items-center h-75" id="loading-row">
+    <div class="row d-flex align-items-center h-100" id="loading-row">
         <div class="col loading-state">
             <div class="loader"></div>
             <br>
@@ -47,7 +46,7 @@
     </div>
     <div id="text-width"></div>
     <div id="lightbox"></div>
-    <div id="facevideo-node"></div>
+    <div id="facevideo-node" style="display: none;"></div>
     
     <div class="row d-none align-items-center flex-fill" id="demo-setup">
         <div class="col-md-6 offset-md-3 demo-message" id="msg-webcam-failure">

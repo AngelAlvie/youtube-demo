@@ -1,3 +1,10 @@
+// https://github.com/wbkd/d3-extended
+d3.selection.prototype.moveToFront = function() {  
+  return this.each(function(){
+    this.parentNode.appendChild(this);
+  });
+};
+
 /** Graph Controller
  *  This is an Object that performs the state changes and interfaces with the relevant libraries in order to graph data that is coming to the graph from the detector.
  * @param {string} id - id of the svg curve div object in the DOM 
@@ -169,7 +176,7 @@ function Graph (id) {
       // Now add the graybox to the SVG
       gray_boxes[currentCurvesIdx].push(x_scale(timestamp));
       plotLastVoid(timestamp);
-
+      last_box.moveToFront();
       wasNil = false;
     } else {
       self

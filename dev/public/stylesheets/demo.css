@@ -197,7 +197,9 @@ text.time {
 }
 
 .affectiva-logo {
-    margin-bottom: 10px;
+    position: absolute;
+    top: 20 ;
+    right: 20;
 }
 
 .main {
