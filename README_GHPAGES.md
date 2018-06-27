@@ -29,7 +29,7 @@ $ python
 
 * Open Command Prompt/Terminal and navigate to the folder where the source code was cloned
 * Run a server with the following command:
-	
+* **Important: Be sure to change the API Key in index.js to a key of your own. Follow the instructions [here](https://developers.google.com/youtube/registering_an_application#Create_API_Keys).**
 #### Python 2.x
 
 ```
@@ -46,7 +46,7 @@ Once the server is up, open a web browser and navigate to [http://localhost:8000
 
 ## Components
 
-This demo is broken down into three components under `public/javascripts/`.
+This demo is broken down into three components under `js/`.
 
 ### graph.js
 

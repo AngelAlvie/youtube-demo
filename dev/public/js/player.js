@@ -1,7 +1,6 @@
-/** Here I want to define a Asynchronous Player object that supports a number of signals that can be sent to it
+/** Asynchronous Player is a closure that is configurable with callbacks and signals.
  */
 function AsyncPlayer() {
-  // This represents a closure, where I can define all of my variables that I need.
   let player = null;
   const VIDEO_HEIGHT = 510;
   const VIDEO_WIDTH = 853;
@@ -63,11 +62,10 @@ function AsyncPlayer() {
       }
     } else if (status === YT.PlayerState.ENDED) {
       cb("ended", null);
-    } else if (status === YT.PlayerState.CUED && video_duration_sec > VIDEO_LENGTH_THRESHOLD && playing) { // loss of Internet while playing video
+    } else if (status === YT.PlayerState.CUED && video_duration_sec > VIDEO_LENGTH_THRESHOLD && playing) { // loss of internet while playing video
       cb("network fail", null);
       player.stopVideo();
     }
-    // make cursor less buggy while video is paused
     if (status === YT.PlayerState.PLAYING) {
       playing = true;
     } else {
@@ -86,15 +84,14 @@ function AsyncPlayer() {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
         resolve();
       });
-      // I want to defer the resolution of this promise to the initialize callback of the youtube player
+      // Defer the resolution of this promise to the initialize callback of the youtube player
       window.onYouTubeIframeAPIReady = initializeYouTubePlayer(cb); 
-      //console.log(window);
     } else if (message === "play") {
       player.addEventListener("onStateChange", onPlayerStateChange(cb));
       player.addEventListener("onError", onPlayerError(cb));
-      player.loadVideoById(data); // we assume that data is a video id
+      player.loadVideoById(data); // assume that data is a video id
     } else if (message === "seek") {
-      player.seekTo(data);        // we assume that data is a time
+      player.seekTo(data);        // assume that data is a time
       cb("seeked", null);
     } else if (message === "pause"){    
       player.pauseVideo();
