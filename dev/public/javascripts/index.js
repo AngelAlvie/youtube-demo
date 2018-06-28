@@ -12,7 +12,7 @@ const browserCheck = () => {
 
 $(document).ready(() => {
   JSSDKDemo = new Demo();
-  if (browserCheck() || true /*For mobile testing*/) {
+  if (browserCheck()) {
     JSSDKDemo.start();
   } else {
     JSSDKDemo.createAlert("incompatible-browser", "It appears that you are using an unsupported browser. Please try this demo on an updated version of Chrome, Firefox, Opera or Edge.");

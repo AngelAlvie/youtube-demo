@@ -132,7 +132,7 @@ text.time {
     display: inline-block;
     margin: 0.5em;
     text-decoration: none;
-    color: #333;
+    color: #1f1f1f;
     border-radius: .2em;
     text-align: center;
 
@@ -145,7 +145,7 @@ text.time {
 }
 
 .selected {
-    border: 3px solid #ffcc66 !important;
+    border: 3px solid #e1e1e1 !important;
 }
 
 /* not sure what this class does */
@@ -170,22 +170,22 @@ text.time {
 }
 
 .all-box {
-    background: #767944;
+    background: #808080;
 }
 .joy-box {
-    background: white;
+    background: #2bb3f7;
 }
 .anger-box {
-    background: orangered;
+    background: #ff69bf;
 }
 .contempt-box {
-    background: yellow;
+    background: #2ee65d;
 }
 .disgust-box {
-    background: deeppink;
+    background: #ff0082;
 }
 .surprise-box {
-    background: green;
+    background: #8200b3;
 }
 
 .list-group-item {
