@@ -12,7 +12,7 @@ const browserCheck = () => {
 
 $(document).ready(() => {
   JSSDKDemo = new Demo();
-  if (browserCheck()) {
+  if (browserCheck() || true /*For mobile testing*/) {
     JSSDKDemo.start();
   } else {
     JSSDKDemo.createAlert("incompatible-browser", "It appears that you are using an unsupported browser. Please try this demo on an updated version of Chrome, Firefox, Opera or Edge.");
@@ -41,6 +41,9 @@ function Demo() {
   let playing_swap = false; 
   // Interval tracking variable.
   let cursor_interval = null;
+
+  // Determines if the buffer should continue
+  let video_resumed = false;
 
   // Internal state for the detector
   let time_buffering_ms = 0;
@@ -133,7 +136,7 @@ function Demo() {
       //  reject("msg-affdex-failure");
       //});
       detector.addEventListener("onImageResultsSuccess", (faces, img, timestamp) => {
-        if (state === self.States.RECORDING) {
+        if (state === self.States.RECORDING && video_resumed) {
           // account for time spent buffering
           const fake_timestamp = getCurrentTimeAdjusted();
           
@@ -370,13 +373,23 @@ function Demo() {
       if (message === "video start") {
         loadGraphButtons();
         state = self.States.RECORDING;
-        showGraph(data.start_time, data.video_duration_ms);
-        graph.configureForPlayback(data.video_duration_sec);
+        showGraph(data.start_time, data.video_duration_ms,data.video_duration_sec);
+        video_resumed = true;
+      
       } else if (message ==="short video") {
         showMessage("msg-short-video");
+      
       } else if (message ==="buffer finished") {
+        // Tell the detector to start recording
+        video_resumed = true;
         time_buffering_ms += data;
+      
+      } else if (message === "buffer started") {
+        // Tell the detector to stop recording
+        video_resumed = false;
+      
       } else if (message ==="ended") {
+        video_resumed = false;
         if (state === self.States.PLAYBACK) {
           graph.translateCursor(0);
         } else {
@@ -384,9 +397,12 @@ function Demo() {
         }
         player("seek",0);
         player("pause");
+      
       } else if (message ==="network fail") {
+        video_resumed = false;
         detector.stop();
         noInternet();
+      
       } else if (message ==="error") {
         showMessage("msg-bad-url");
       }
@@ -394,21 +410,22 @@ function Demo() {
   };
 
   /** Show the graph that was loaded earlier. */
-  const showGraph = (start_time, video_duration_ms) => {
+  const showGraph = (start_time, video_duration_ms, video_duration_sec) => {
     // take care of gap at beginning
-    
     $("#demo-setup").removeClass("d-flex");
     $("#demo-setup").fadeOut("fast", () => {
       $("#video-container").show();
-      graph.initPlot();
-      graph.setXScale(start_time, video_duration_ms);
-      graph.updatePlot({
-        "joy": 0,
-        "anger": 0,
-        "disgust": 0,
-        "contempt": 0,
-        "surprise": 0
-      }, start_time);
+      graph
+        .initPlot()
+        .setXScale(start_time, video_duration_ms)
+        .updatePlot({
+          "joy": 0,
+          "anger": 0,
+          "disgust": 0,
+          "contempt": 0,
+          "surprise": 0
+        }, start_time)
+        .configureForPlayback(video_duration_sec);
     });
   };
 
@@ -530,12 +547,13 @@ function Demo() {
 
     if (player("getPlayingState")) {
       clearInterval(cursor_interval);
-    }
-    graph.translateCursor(x_click);
-    player("seek", playback_time);
-
-    if (player("getPlayingState")) {
+      graph.translateCursor(x_click);
+      player("seek", playback_time);
       trackVideo();
+    } else {
+      graph.translateCursor(x_click);
+      player("seek", playback_time);
+      
     }
   };
 

@@ -228,7 +228,7 @@ function Graph (id) {
       .attr("stroke-width","2px")
       .attr("stroke-opacity", "1");
 
-    
+      
     svg_width = $(id).width();
 
     return self;
