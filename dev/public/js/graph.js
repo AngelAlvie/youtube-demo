@@ -73,9 +73,9 @@ function Graph (id) {
   };
 
   /** This function takes an emotion, and transitions the currently selected emotion accordingly.
-   * @param {string} emotion - name that is associated with the particular emotion that we are interested in. */
+   * @param {string} emotion - name that is associated with the particular emotion that was handled. */
   this.resetSelectedEmotionButton = (emotion) => {
-    // If the selected_emotion is not the one I just clicked, then toggle my current one, set me to all, and in
+    // If the selected_emotion is not the one that was just clicked, then toggle the current one
     if (selected_emotion !== emotion) {
       $("#" + selected_emotion).removeClass("selected");
       $("#" + emotion).addClass("selected");
@@ -97,7 +97,7 @@ function Graph (id) {
 
   /** Button Handler Generator for the rest of the emotions
    *  Just call `$(button).click(graph.EmotionButtonClickHandler(emotion));` to use
-   * @param {string} emotion - name of the emotion that we want to highlight. */
+   * @param {string} emotion - name of the emotion to highlight. */
   this.EmotionButtonClickHandler = (emotion) => {
     return () => {
       self
@@ -117,7 +117,7 @@ function Graph (id) {
 
   /** Adds a singular datum to the graph.
    * @param {string:float} emotionTable - this is a dictionary that maps each emotion to a floating point number
-   * @param {float} timestamp - this is the timestamp in the video where we plot the data (effectively the x coordinate). */
+   * @param {float} timestamp - this is the timestamp in the video (effectively the x coordinate). */
   this.addDataPoint = (emotionTable, timestamp) => {
     self.emotions.forEach((val, idx) => {
       processed_frames[currentCurvesIdx][idx].push([timestamp, emotionTable[val]]);
@@ -128,11 +128,11 @@ function Graph (id) {
   /** Tells graph that there is no data to plot. It will resolve this by finishing the current svg, and creating a new svg */
   this.noData = (timestamp) => {
     if (!wasNil) {
-      //Here we increment current curvesIdx, and initialize some new curves
+      //Increment current curvesIdx, and initialize some new curves.
       currentCurvesIdx++;
 
       processed_frames.push([[],[],[],[],[]]);
-      gray_boxes.push([x_scale(timestamp)]); // First element is the timestamp that we lost.
+      gray_boxes.push([x_scale(timestamp)]); // First element is the timestamp that was lost.
 
       last_box = self
         .getCurveBox()
@@ -147,7 +147,7 @@ function Graph (id) {
 
   /** updates the plot to have up to date information
    * @param {string:float} emotionTable - this is a dictionary that maps each emotion to a floating point number
-   * @param {float} timestamp - this is the timestamp in the video where we plot the data (effectively the x coordinate). */
+   * @param {float} timestamp - this is the timestamp in the video (effectively the x coordinate). */
   this.updatePlot = (emotionTable, timestamp) => {
     
     if (wasNil) {
@@ -165,7 +165,7 @@ function Graph (id) {
         .data(initial_data)
         .enter()
         .append("svg:path")
-        .attr("class", "curve c"+ currentCurvesIdx.toString()) // we append c1 c2 c3 whatever, depending on the current svg.
+        .attr("class", "curve c"+ currentCurvesIdx.toString()) // append c1 c2 c3 whatever, depending on the current svg.
         .attr("id", function(d, i){return self.emotions[i];})
         .attr("d", path)
         .attr("stroke", function(d, i) {return colors[i];})
@@ -192,7 +192,7 @@ function Graph (id) {
   
   var initLastVoid = () => {
     last_box
-      .attr("x", gray_boxes[currentCurvesIdx][0] - 2)
+      .attr("x", gray_boxes[currentCurvesIdx][0])
       .attr("y", 0)
       .attr("width", 0)
       .attr("height", 250)
@@ -201,7 +201,7 @@ function Graph (id) {
   var plotLastVoid = (timestamp) => {
     let x1 = gray_boxes[currentCurvesIdx][0];
     let x2 = x_scale(timestamp);
-    last_box.attr("width", x2-x1 + 6);
+    last_box.attr("width", x2-x1);
   };
 
   /** Instantiate the plot. zero the data, and set attributes of curves. */
@@ -220,7 +220,7 @@ function Graph (id) {
       .data(initial_data)
       .enter()
       .append("svg:path")
-      .attr("class", "curve c"+ currentCurvesIdx.toString()) // we append c1 c2 c3 whatever, depending on the current svg.
+      .attr("class", "curve c"+ currentCurvesIdx.toString()) // append c1 c2 c3 whatever, depending on the current svg.
       .attr("id", function(d, i){return self.emotions[i];})
       .attr("d", path)
       .attr("stroke", function(d, i) {return colors[i];})
@@ -303,7 +303,7 @@ function Graph (id) {
   };
   
   /** Initializes the cursor and returns it.
-   * @returns {object} - cursor that we can then configure callbacks on. */
+   * @returns {object} - cursor that can then configure callbacks on. */
   this.initializeCursor = () => {
     // Initialize Cursor
     cursor = curveBox.append("svg:g").attr("y1", 0).attr("y2", 250).attr("x1", 0).attr("x2", 10).attr("class", "draggable-group");

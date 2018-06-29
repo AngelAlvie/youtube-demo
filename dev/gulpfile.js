@@ -14,8 +14,8 @@ const buildGenerator = (source, destination) => {
 };
 
 
-gulp.task("build-stylesheets", buildGenerator("public/stylesheets/**", "../build/stylesheets/"));
-gulp.task("build-javascripts", buildGenerator("public/javascripts/**", "../build/javascripts/"));
+gulp.task("build-stylesheets", buildGenerator("public/css/**", "../build/css/"));
+gulp.task("build-javascripts", buildGenerator("public/js/**", "../build/js/"));
 gulp.task("build-images"     , buildGenerator("public/images/**", "../build/images/"));
 gulp.task("build-html"       , buildGenerator("public/index.html",    "../build/"));
 gulp.task("build-license"    , buildGenerator("../LICENSE", "../build/"));

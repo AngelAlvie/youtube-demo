@@ -1,7 +1,6 @@
-/** Here I want to define a Asynchronous Player object that supports a number of signals that can be sent to it
+/** Asynchronous Player is a closure that is configurable with callbacks and signals.
  */
 function AsyncPlayer() {
-  // This represents a closure, where I can define all of my variables that I need.
   let player = null;
   const VIDEO_VOLUME = 50;
   const VIDEO_LENGTH_THRESHOLD = 5;

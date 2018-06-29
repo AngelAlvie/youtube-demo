@@ -21,7 +21,7 @@ $(document).ready(() => {
 
 function Demo() {
   const self = this; 
-  // Use self inside of methods to ensure that we are referencing the Demo object when calling public members
+  // Use self inside of methods to ensure that the Demo object is referenced when calling public members
 
   // These are the states that the demo can be in
   this.States = {
@@ -30,11 +30,11 @@ function Demo() {
     RECORDING:"RECORDING",
     PLAYBACK:"PLAYBACK"
   };
-  let state = self.States.LOADING; // We start the demo in the LOADING STATE.
+  let state = self.States.LOADING; // Start the demo in the LOADING STATE.
 
   // Internal State variables
 
-  // Stores all of the videos that we want to load into the suggestions
+  // Temporarily store videos after promises fire
   let initial_videos = []; 
 
   // Used to prevent the video from losing its state when dragging occurs
@@ -54,8 +54,10 @@ function Demo() {
   let face_visible = true;
   let detector = null;
 
-  // The YouTube Data API KEY should really not be in the client, but oh well.
-  let API_KEY = "AIzaSyBw81iUUXQpYRuxSVmMc2jNkjv1tJwqHjc";
+  /* This API key only works on the affectiva.github.io domain. 
+   * Please create your own key by following the instructions from 
+   * Google here: https://developers.google.com/youtube/registering_an_application#Create_API_Keys */
+  let API_KEY = "AIzaSyByYCTqtE_JdKxI0ZIoloAvvEBrgp2B0zQ";
   
   let player = AsyncPlayer();
   let graph = new Graph("#svg-curve");
@@ -81,8 +83,8 @@ function Demo() {
   };
 
   /** Creates an alert that is displayed to the user.
-   * @param {string} id - Id of the html object that we cast the alert to
-   * @param {string} text - text of the alert that we show to the user. */
+   * @param {string} id - Id of the html object to cast the alert to
+   * @param {string} text - text of the alert to show to the user. */
   this.createAlert = (id, text) => {
     $("#lightbox").fadeIn(alert_transition_delay_in);
     $("<div></div>", {
@@ -132,9 +134,6 @@ function Demo() {
       detector.addEventListener("onInitializeSuccess", () => {
         resolve();
       });
-      //detector.addEventListener("onInitializeFailure", () => {
-      //  reject("msg-affdex-failure");
-      //});
       detector.addEventListener("onImageResultsSuccess", (faces, img, timestamp) => {
         if (state === self.States.RECORDING && video_resumed) {
           // account for time spent buffering
@@ -166,7 +165,7 @@ function Demo() {
   };
 
   /** Make a request to load example video data to the `initial_videos` array.
-   * @param {string[]} video_ids - list of ids for each of the videos we want to get. */
+   * @param {string[]} video_ids - list of ids for each of the videos to get. */
   const loadExamples = (video_ids) => {
     let promises = [];
     video_ids.forEach((value) => {
@@ -229,9 +228,8 @@ function Demo() {
 
   /** Set ordering of initial videos to be in the same order as the video ids list. */
   const sortVideos = () => {
-    // I'm not worried about efficency, since I know  the number of elements is bounded by a really small number (6).
     let ordering = [];
-    // Use a selection sort.
+    // Use a selection sort. Efficiency is not a concern given the low input size.
     video_ids.forEach((value) => {
       initial_videos.forEach((video) => {
         if (video.id === value) {
@@ -244,7 +242,7 @@ function Demo() {
 
   };
 
-  /** Render an initial box of videos that we want to show the user. */
+  /** Render an initial box of videos that to show the user. */
   const populateExamples = () => {
     
     sortVideos();
@@ -344,7 +342,7 @@ function Demo() {
         </tr>
       </table>`;    
       $("#search-results").append(result);
-      $(result).click({id: id}, onVideoClick);  // These are buttons that are being used in start button click. i don't know why there is one big function
+      $("#"+id).click({id: id}, onVideoClick);
     });
 
     // show a message for when no videos were found
@@ -362,13 +360,13 @@ function Demo() {
    *  ============================================================== */
   
   /** Transition the page into the RECORDING state. 
-   * @param {string} video_id - internal youtube id for the video that we want to transition to playing */
+   * @param {string} video_id - youtube video id for the video to start playing */
   const transitionToRecording = (video_id) => {
-    // Remove any demo messages we recieved
+    // Remove any demo messages that were received
     $(".demo-message").hide();
 
 
-    // start the detector ("The detector only starts graphing when we are in the RECORDING phase")
+    // start the detector ("The detector only starts graphing when in the RECORDING phase")
     player("play", video_id, (message, data) => {
       if (message === "video start") {
         loadGraphButtons();
@@ -496,7 +494,7 @@ function Demo() {
     });
   };
 
-  /** Add listeners for the spacebar, so that we can pause and play the video in playback. */
+  /** Add listeners for the spacebar, to allow controls for the video in playback. */
   const setSpaceBarPlayBehvaior = () => {
     document.onkeypress = (event) => {
       if ((event || window.event).charCode == 32) {
@@ -521,7 +519,7 @@ function Demo() {
   const dragStartHandler = () => {
     if (player("getPlayingState")) {
       clearInterval(cursor_interval);
-      // I want to stop the player until we stop dragging, but keep the state of the player as we drag.
+      // Store the state of the player and pause it.
       playing_swap = true;
       player("pause");
     }
@@ -582,7 +580,7 @@ function Demo() {
         url:urlString,
         method:"GET",
         success: ( data, textStatus, jqXHR ) => { resolve(data); },
-        failure: ( jqXHR, textStatus, errorThrown) =>{ reject(errorThrown); }
+        error: ( jqXHR, textStatus, errorThrown) => { reject(errorThrown); }
       });
     });
   };

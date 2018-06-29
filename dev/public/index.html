@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Affectiva JavaScript SDK MR Demo</title>
@@ -9,8 +10,7 @@
           rel="stylesheet" 
           integrity="sha384-ae362vOLHy2F1EfJtpMbNW0i9pNM1TP2l5O4VGYYiLJKsaejqVWibbP6BSf0UU5i" 
           crossorigin="anonymous" />
-
-    <link href="stylesheets/demo.css" rel="stylesheet" type="text/css" />
+    <link href="css/demo.css" rel="stylesheet" type="text/css" />
     
     <!-- Since we are not using a JS Rendering engine, we want to load JS synchronously after all the page elements have loaded, so that we don't stall the page -->
     <!-- outside vendor files, imported from CDN -->
@@ -22,16 +22,15 @@
     <!-- Affectiva SDK -->
     <script defer src="https://download.affectiva.com/js/3.2/affdex.js"></script>
     <!-- demo files -->
-    <script defer src="javascripts/player.js"></script>
-    <script defer src="javascripts/graph.js"></script>
-    <script defer src="javascripts/index.js"></script>
+    <script defer src="js/player.js"></script>
+    <script defer src="js/graph.js"></script>
+    <script defer src="js/index.js"></script>
 </head>
-
-<body>
+<body class="d-flex flex-fill">
 <a href="https://www.affectiva.com/" target="_blank">
     <img class="affectiva-logo"  src="images/affectiva-logo.png" width=225 height=45>
 </a>
-<div class="main container d-flex flex-column">
+<div class="flex-fill container d-flex flex-column">
     <div class="row d-flex align-items-center h-100" id="loading-row">
         <div class="col loading-state">
             <div class="loader"></div>
@@ -67,10 +66,8 @@
         <div class="col-md-8 offset-md-2" id="instructions">
             <div class="card my-3">
                 <div class="card-body">
-                    <h6 class="card-title"><strong>Welcome!</strong></h6>
-                    <p class="card-text">This demo uses Affectiva's JavaScript SDK to analyze your emotions as you watch a YouTube video. Before starting this demo, please make sure that your face is centered in the screen and the room lighting is adequate.</p>
-                    <h6 class="card-title"><strong>Instructions:</strong></h6>
-                    <p class="card-text">Search a YouTube video by keyword or enter its URL, and with your webcam turned on, you'll be able to see your emotions both during the video and during playback:</p>
+                    <p class="card-text">Welcome to Affectiva's JavaScript SDK Demo.</p> 
+                    <p class="card-text">This demo uses your webcam and Affectiva's JavaScript SDK to analyze your emotions as you watch a YouTube video. Simply search for a YouTube video or insert a video URL in the search bar below to get started.</p>
                     <div class="form-group">
                         <div class="input-group">
                             <input type="text" class="form-control" id="start-form" placeholder="Enter a URL or search YouTube here..." autofocus>
