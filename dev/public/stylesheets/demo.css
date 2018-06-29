@@ -170,22 +170,23 @@ text.time {
 }
 
 .all-box {
-    background: #808080;
+    background: #696969;
+    color:white;
 }
 .joy-box {
-    background: #2bb3f7;
-}
-.anger-box {
-    background: #ff69bf;
-}
-.contempt-box {
     background: #2ee65d;
 }
+.anger-box {
+    background: #fc4627;
+}
+.contempt-box {
+    background: #2bb3f7;
+}
 .disgust-box {
-    background: #ff0082;
+    background: #ffd000;
 }
 .surprise-box {
-    background: #8200b3;
+    background: #ff69bf;
 }
 
 .list-group-item {

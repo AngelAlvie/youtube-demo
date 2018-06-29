@@ -18,7 +18,7 @@ function Graph (id) {
   const curveBox = d3.select(id);
   let cursor = null;
   let cursor_text = null;
-  const colors = ["#2bb3f7", "#ff69bf", "#ff0082", "#2ee65d", "#8200b3"];
+  const colors = ["#2ee65d", "#fc4627", "#ffd000", "#2bb3f7", "#ff69bf"];
   let selected_emotion = "all";
   let svg_width = 720;
   let x_scale = d3.scaleLinear().domain([0, 0]).range([0, svg_width]);
