@@ -9,11 +9,12 @@ gulp.task("clean", (cb) => {
 
 const buildGenerator = (source, destination) => {
   return () => {
-    return gulp.src(source).pipe(gulp.dest(destination)); 
+    return gulp.src(source).pipe(gulp.dest(destination));
   };
 };
 
 
+gulp.task("build-libraries", buildGenerator("public/lib/**", "../build/lib/"));
 gulp.task("build-stylesheets", buildGenerator("public/css/**", "../build/css/"));
 gulp.task("build-javascripts", buildGenerator("public/js/**", "../build/js/"));
 gulp.task("build-images"     , buildGenerator("public/images/**", "../build/images/"));
@@ -24,9 +25,9 @@ gulp.task("build-readme"     , () => {
   return gulp
     .src("../README_GHPAGES.md")
     .pipe(rename("README.md"))
-    .pipe(gulp.dest("../build/")); 
+    .pipe(gulp.dest("../build/"));
 });
-gulp.task("build", gulp.series("clean", gulp.parallel("build-javascripts", "build-stylesheets", "build-images", "build-html", "build-readme", "build-license", "build-gitignore")));
+gulp.task("build", gulp.series("clean", gulp.parallel("build-javascripts", "build-libraries", "build-stylesheets", "build-images", "build-html", "build-readme", "build-license", "build-gitignore")));
 
 gulp.task("test", (cb) =>{
   cb();
