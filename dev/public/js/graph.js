@@ -1,5 +1,5 @@
 // https://github.com/wbkd/d3-extended
-d3.selection.prototype.moveToFront = function() {  
+d3.selection.prototype.moveToFront = function() {
   return this.each(function(){
     this.parentNode.appendChild(this);
   });
@@ -7,13 +7,13 @@ d3.selection.prototype.moveToFront = function() {
 
 /** Graph Controller
  *  This is an Object that performs the state changes and interfaces with the relevant libraries in order to graph data that is coming to the graph from the detector.
- * @param {string} id - id of the svg curve div object in the DOM 
+ * @param {string} id - id of the svg curve div object in the DOM
  * @returns {object} - object that represents the graph controller.
  */
 function Graph (id) {
   // preserve the internal reference to this object, and get around javascript's wonky `this` behavior.
   let self = this;
-  
+
   // private members
   const curveBox = d3.select(id);
   let cursor = null;
@@ -39,7 +39,7 @@ function Graph (id) {
   let last_box = null;
   // public members
   this.emotions = ["joy", "anger", "disgust", "contempt", "surprise"];
-  
+
   //private methods
 
   /** Creates a string that represents the current time of the video.
@@ -149,7 +149,7 @@ function Graph (id) {
    * @param {string:float} emotionTable - this is a dictionary that maps each emotion to a floating point number
    * @param {float} timestamp - this is the timestamp in the video (effectively the x coordinate). */
   this.updatePlot = (emotionTable, timestamp) => {
-    
+
     if (wasNil) {
       var initial_data = [
         [ [timestamp, emotionTable["joy"]] ], // joy
@@ -158,7 +158,7 @@ function Graph (id) {
         [ [timestamp, emotionTable["contempt"]] ], // contempt
         [ [timestamp, emotionTable["surprise"]] ]  // surprise
       ];
-  
+
       self
         .getCurves()
         .filter(".c"+currentCurvesIdx.toString())
@@ -186,10 +186,10 @@ function Graph (id) {
         .data(processed_frames[currentCurvesIdx])   // curves are assigned in index order, this is how d3 works.
         .attr("d", path);
 
-    }    
+    }
     return self;
   };
-  
+
   var initLastVoid = () => {
     last_box
       .attr("x", gray_boxes[currentCurvesIdx][0])
@@ -228,7 +228,7 @@ function Graph (id) {
       .attr("stroke-width","2px")
       .attr("stroke-opacity", "1");
 
-      
+
     svg_width = $(id).width();
 
     return self;
@@ -301,7 +301,7 @@ function Graph (id) {
     $(".draggable-rect, line.cursor-wide").css("cursor", "pointer");
     return self;
   };
-  
+
   /** Initializes the cursor and returns it.
    * @returns {object} - cursor that can then configure callbacks on. */
   this.initializeCursor = () => {

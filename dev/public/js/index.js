@@ -20,7 +20,7 @@ $(document).ready(() => {
 });
 
 function Demo() {
-  const self = this; 
+  const self = this;
   // Use self inside of methods to ensure that the Demo object is referenced when calling public members
 
   // These are the states that the demo can be in
@@ -35,10 +35,10 @@ function Demo() {
   // Internal State variables
 
   // Temporarily store videos after promises fire
-  let initial_videos = []; 
+  let initial_videos = [];
 
   // Used to prevent the video from losing its state when dragging occurs
-  let playing_swap = false; 
+  let playing_swap = false;
   // Interval tracking variable.
   let cursor_interval = null;
 
@@ -54,11 +54,11 @@ function Demo() {
   let face_visible = true;
   let detector = null;
 
-  /* This API key only works on the affectiva.github.io domain. 
-   * Please create your own key by following the instructions from 
+  /* This API key only works on the affectiva.github.io domain.
+   * Please create your own key by following the instructions from
    * Google here: https://developers.google.com/youtube/registering_an_application#Create_API_Keys */
   let API_KEY = "AIzaSyCju791bC9hkCE8thtQZB25LePTpvBCoWc";
-  
+
   let player = AsyncPlayer();
   let graph = new Graph("#svg-curve");
   let video_ids = ["EglYdO0k5nQ", "z63KGZE4rnM", "IV_ef2mm4G0", "dlNO2trC-mk", "lhzwmYRXPp4", "0kfLd52jF3Y"];
@@ -116,7 +116,7 @@ function Demo() {
 
   const showErrorRow = () => {
     $("#error-row").removeClass("d-none");
-    $("#error-row").removeClass("d-flex");        
+    $("#error-row").removeClass("d-flex");
   };
 
   /** Promise factory to load the Detector and bid the relevant callbacks. */
@@ -145,7 +145,7 @@ function Demo() {
         if (state === self.States.RECORDING && video_resumed) {
           // account for time spent buffering
           const fake_timestamp = getCurrentTimeAdjusted();
-          
+
           if (frames_since_last_face > face_alert_threshold && face_visible) {
             face_visible = false;
             self.createAlert("no-face", "No face was detected. Please re-position your face and/or webcam.");
@@ -251,9 +251,9 @@ function Demo() {
 
   /** Render an initial box of videos that to show the user. */
   const populateExamples = () => {
-    
+
     sortVideos();
-    
+
     const example_container = $("#example-container");
 
     // list of lists for how we want to orient the examples, depending on the # of examples we have
@@ -262,23 +262,23 @@ function Demo() {
       [12, 6, 6, 4, 4], // < 4
       [12, 6, 6, 6, 6], // = 4 (We want a special behavior for this sweet spot),
       [12, 6, 6, 4, 4]  // > 4
-    ]; 
+    ];
 
-    const bp = (initial_videos.length > 4) ? breakpoints[2] : ((initial_videos.length === 4) ? breakpoints[1] : breakpoints[0]); 
+    const bp = (initial_videos.length > 4) ? breakpoints[2] : ((initial_videos.length === 4) ? breakpoints[1] : breakpoints[0]);
 
     initial_videos.forEach((video, index) => {
       const thumbnail_url = "https://i.ytimg.com/vi/" + video.id + "/mqdefault.jpg";
 
       let JQVideoColumn = $(`<div class='col-${bp[0]} col-sm-${bp[1]} col-md-${bp[2]} col-lg-${bp[3]} col-xl-${bp[4]}'></div>`);
       let JQVideoNode =  $("<div class='example card m-1'></div>");
-      
+
       JQVideoColumn.appendTo(example_container);
       JQVideoNode.appendTo(JQVideoColumn);
 
       JQVideoNode[0].style.backgroundImage = "url(" + thumbnail_url + ")";
       // Give it the click handler
       JQVideoNode.click({ id: video.id }, onVideoClick);
-      
+
       JQVideoNode.hover(() => {
         JQVideoNode[0].style.backgroundBlendMode = "overlay";
         JQVideoNode.html("<p class='video-text'>" + video.title + "</p>");
@@ -293,7 +293,7 @@ function Demo() {
   /** Initialize the transition to the next state. */
   const onVideoClick = (event) => {
     if (state === self.States.SEARCHING) {
-      
+
       const video_id = event.data.id;
       if (typeof video_id !== "undefined") {
         transitionToRecording(video_id);
@@ -306,9 +306,9 @@ function Demo() {
     $(".demo-message").hide();
     let video_id;
     if (state === self.States.SEARCHING) {
-      
+
       const blob = document.getElementById("start-form").value;
-      
+
       if (blob === "" || blob.includes("http://") || blob.includes("https://")) { // treat as URL
         video_id = blob.split("v=")[1] || "";
         const ampersandPosition = video_id.indexOf("&");
@@ -326,7 +326,7 @@ function Demo() {
     }
   };
 
-  /** Takes a string of JSON, and adds the results to the view.  
+  /** Takes a string of JSON, and adds the results to the view.
    * @param {string} text - String that represents JSON data */
   const addToSearchResults = (results) => {
     $("#search-results").empty();
@@ -341,11 +341,11 @@ function Demo() {
       let result = document.createElement("div");
       result.className = "list-group-item";
       result.id = id;
-      result.innerHTML = 
+      result.innerHTML =
       `<div class="row">
           <div class="col-md-auto"><img class="img-fluid" src="${s.thumbnails.medium.url}" style="margin-right:15px"></div>
           <div class="col"><h3>${s.title}</h3><p>${s.description}</p></div>
-        </div>`;    
+        </div>`;
       $("#search-results").append(result);
       $("#"+id).click({id: id}, onVideoClick);
     });
@@ -363,8 +363,8 @@ function Demo() {
   /** ==============================================================
    *   Record - methods associated with the RECORDING phase
    *  ============================================================== */
-  
-  /** Transition the page into the RECORDING state. 
+
+  /** Transition the page into the RECORDING state.
    * @param {string} video_id - youtube video id for the video to start playing */
   const transitionToRecording = (video_id) => {
     // Remove any demo messages that were received
@@ -378,19 +378,19 @@ function Demo() {
         state = self.States.RECORDING;
         showGraph(data.start_time, data.video_duration_ms,data.video_duration_sec);
         video_resumed = true;
-      
+
       } else if (message ==="short video") {
         showMessage("msg-short-video");
-      
+
       } else if (message ==="buffer finished") {
         // Tell the detector to start recording
         video_resumed = true;
         time_buffering_ms += data;
-      
+
       } else if (message === "buffer started") {
         // Tell the detector to stop recording
         video_resumed = false;
-      
+
       } else if (message ==="ended") {
         video_resumed = false;
         if (state === self.States.PLAYBACK) {
@@ -400,12 +400,12 @@ function Demo() {
         }
         player("seek",0);
         player("pause");
-      
+
       } else if (message ==="network fail") {
         video_resumed = false;
         detector.stop();
         noInternet();
-      
+
       } else if (message ==="error") {
         showMessage("msg-bad-url");
       }
@@ -463,7 +463,7 @@ function Demo() {
       $("#btn-play-again").one("click", allowPlayback);
     });
   };
-  
+
   /** Start the playback, by adding a cursor that tracks the video. */
   const initializePlayback = () => {
     let cursor = graph.initializeCursor();
@@ -491,7 +491,7 @@ function Demo() {
       play_again_button.replaceWith(() => {
         return $("<button id='btn-play-again' class='btn btn-primary'>Try again</button>").fadeIn(500, () => {
           setSpaceBarPlayBehvaior();
-          $("#btn-play-again").one("click", () => { 
+          $("#btn-play-again").one("click", () => {
             window.location.reload(false);
           });
         });
@@ -534,7 +534,7 @@ function Demo() {
   /** Handler for `dragend` event. */
   const dragEndHandler = () => {
     if (playing_swap) {
-      player("resume"); 
+      player("resume");
       playing_swap = false; //reset it to false after use
 
       player("setPlayingState", true);
@@ -545,7 +545,7 @@ function Demo() {
 
   /** Handler for `click` event on graph. */
   const graphClickHandler = function() {
-    const x_click = graph.clipX(d3.mouse(this)[0]); 
+    const x_click = graph.clipX(d3.mouse(this)[0]);
     const playback_time = graph.playbackFromX(x_click);
 
     if (player("getPlayingState")) {
@@ -556,7 +556,7 @@ function Demo() {
     } else {
       graph.translateCursor(x_click);
       player("seek", playback_time);
-      
+
     }
   };
 
@@ -576,9 +576,9 @@ function Demo() {
 
   /** Ignores it's input and returns null. Useful for ignore promise failures */
   const ignore = () => {};
-  
+
   /** Creates a promise that resolves a GET request when the server returns a response status of 200, fails otherwise.
-   * @param {string} urlString - URL of the GET request. */  
+   * @param {string} urlString - URL of the GET request. */
   const httpGetAsync = (urlString) => {
     return new Promise((resolve, reject) => {
       $.ajax({
@@ -602,7 +602,7 @@ function Demo() {
     return Date.now() - time_buffering_ms;
   };
 
-  /** Remove alerts created by the `createAlert` function. 
+  /** Remove alerts created by the `createAlert` function.
    * @param {string} id - id of element to remove from the view. */
   const fadeAndRemove = (id) => {
     let removeObj = $(id);

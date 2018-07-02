@@ -30,7 +30,7 @@ function AsyncPlayer() {
         "iv_load_policy": 3,
         "rel": 0,
         "showinfo": 0
-      }, 
+      },
       events: {
         "onError": invokerError,
         "onStateChange": invokerState
@@ -96,7 +96,7 @@ function AsyncPlayer() {
     } else if (status === YT.PlayerState.CUED) {
       if (video_started && !has_ended) {
         cb("network fail", null);
-        player.stopVideo();  
+        player.stopVideo();
       } else if (!video_started) {
         cb("video cued w/out starting", null);
       }
@@ -121,21 +121,21 @@ function AsyncPlayer() {
         var tag = document.createElement("script");
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName("script")[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         resolve();
       });
       // Defer the resolution of this promise to the initialize callback of the youtube player
-      window.onYouTubeIframeAPIReady = initializeYouTubePlayer(cb); 
+      window.onYouTubeIframeAPIReady = initializeYouTubePlayer(cb);
     } else if (message === "play") {
 
       current_state_change_handle = onPlayerStateChange(cb);
       current_error_handle = onPlayerError(cb);
       player.loadVideoById(data); // assume that data is a video id
-    
+
     } else if (message === "seek") {
       player.seekTo(data);        // assume that data is a time
       cb("seeked", null);
-    } else if (message === "pause"){    
+    } else if (message === "pause"){
       player.pauseVideo();
       cb("paused", null);
     } else if (message === "resume") {
