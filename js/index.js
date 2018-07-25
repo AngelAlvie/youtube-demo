@@ -57,7 +57,7 @@ function Demo() {
   /* This API key only works on the affectiva.github.io domain.
    * Please create your own key by following the instructions from
    * Google here: https://developers.google.com/youtube/registering_an_application#Create_API_Keys */
-  let API_KEY = "AIzaSyCju791bC9hkCE8thtQZB25LePTpvBCoWc";
+  let API_KEY = "AIzaSyByYCTqtE_JdKxI0ZIoloAvvEBrgp2B0zQ";
 
   let player = AsyncPlayer();
   let graph = new Graph("#svg-curve");
